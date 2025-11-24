@@ -1,3 +1,25 @@
+:root {
+    --color-text: #222;
+    --color-text-secondary: #929292;
+    --background: #eee;
+    --border: 2px solid #ccc;
+    --card: #fff;
+    --orange: #ffaa22;
+    --orange-hover: #ff8c00;
+    --background-li: rgba(34, 34, 34, 0.06);
+}
+
+[data-theme="dark"] {
+    --color-text: #ececec;
+    --color-text-secondary: #929292;
+    --background: #222;
+    --border: 2px solid #434343;
+    --card: #333;
+    --orange: #ff8c00;
+    --orange-hover: #ffaa22;
+    --background-li: rgba(255, 255, 255, 0.06);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,9 +28,10 @@
 
 body {
     font-family: 'Oswald', sans-serif;
-    background: #eee;
-    color: #222;
+    background: var(--background);
+    color: var(--color-text);
     padding: 20px;
+    transition: all 0.3s ease;
 }
 
 /* header */
@@ -19,19 +42,19 @@ header {
 
 header h1 {
     font-size: 3rem;
-    color: #ff8c00;
+    color: var(--orange);
     text-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
     letter-spacing: 4px;
 }
 
 /* cards */
 .card {
-    background: white;
+    background: var(--card);
     padding: 25px;
     margin: 25px auto;
     max-width: 1100px;
     border-radius: 14px;
-    border: 2px solid #e6e6e6;
+    border: var(--border);
     box-shadow: 0 0 15px rgba(255, 159, 0, 0.25);
     transition: 0.3s;
 }
@@ -44,8 +67,8 @@ header h1 {
 .card h2 {
     font-size: 1.9rem;
     margin-bottom: 20px;
-    color: #222;
-    border-left: 6px solid #ffa200;
+    color: var(--color-text);
+    border-left: 6px solid var(--orange);
     padding-left: 10px;
 }
 
@@ -60,20 +83,20 @@ input {
     padding: 12px;
     font-size: 1.1rem;
     border-radius: 8px;
-    border: 2px solid #ccc;
+    border: var(--border);
     outline: none;
     width: 100%;
 }
 
 input:focus {
-    border-color: #ff8c00;
+    border-color: var(--orange);
     box-shadow: 0 0 6px rgba(255, 159, 0, 0.4);
 }
 
 button {
     margin-top: 10px;
     padding: 10px 15px;
-    background: #ff9c00;
+    background: var(--orange);
     border: none;
     cursor: pointer;
     border-radius: 6px;
@@ -82,16 +105,16 @@ button {
 }
 
 button:hover {
-    background: #ffaa22;
+    background: var(--orange-hover);
 }
 
 .btn {
     margin-top: 20px;
     padding: 12px 20px;
     font-size: 1.2rem;
-    background: #ff8c00;
+    background: var(--orange);
     border: none;
-    color: white;
+    color: #222;
     border-radius: 10px;
     cursor: pointer;
     transition: 0.3s;
@@ -99,28 +122,28 @@ button:hover {
 }
 
 .btn:hover {
-    background: #ffa200;
+    background: var(--orange-hover);
     box-shadow: 0 0 12px rgba(255, 159, 0, 0.7);
 }
 
 .btn-secondary {
     background: none;
-    color: #ccc;
+    color: var(--color-text);
 }
 
 .btn-secondary:hover {
     background: none;
-    color: #ff8c00;
+    color: var(--orange-hover);
 }
 
 .btn-primary {
     background: #caffca;
-    color: #222;
+    color: var(--background);
 }
 
 .btn-primary:hover {
     background-color: #a6f3a6;
-    color: #222;
+    color: var(--background);
 }
 
 .time-input {
@@ -139,17 +162,17 @@ button:hover {
 .unit-buttons button {
     margin-top: 0;
     padding: 4px 8px;
-    color: white;
+    color: #222;
     cursor: pointer;
     border-radius: 4px;
 }
 
 .unit-buttons button:hover {
-    background: #da7800;
+    background: var(--orange-hover);
 }
 
 .unit-buttons button.active {
-    background: #da7800;
+    background: var(--orange-hover);
 }
 
 /* table */
@@ -160,8 +183,8 @@ table {
 }
 
 thead {
-    background: linear-gradient(to right, #ff8c00, #ffa200);
-    color: white;
+    background: linear-gradient(to right, var(--orange), var(--orange-hover));
+    color: #222;
 }
 
 th,
@@ -171,11 +194,11 @@ td {
 }
 
 tbody tr:nth-child(even) {
-    background: #f2f2f2;
+    background: var(--background);
 }
 
 tbody tr:hover {
-    background: #fff2df;
+    background: var(--background);
     transition: .2s;
 }
 
@@ -199,7 +222,7 @@ tbody tr:hover {
 footer {
     text-align: center;
     margin-top: 40px;
-    color: #777;
+    color: var(--color-text-secondary);
 }
 
 /* popup */
@@ -213,16 +236,16 @@ footer {
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 100;
+    z-index: 1000;
 }
 
 #popupBox {
-    background: #2a2f41;
+    background: #222;
     padding: 25px;
     border-radius: 10px;
     width: 350px;
     text-align: center;
-    border: 2px solid #ff9c00;
+    border: 2px solid var(--orange);
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -233,12 +256,24 @@ footer {
 }
 
 #popupBox p {
-    color: #e6e6e6;
+    color: #eee;
+}
+
+.text-grey {
+    color: #929292;
+}
+
+.text-black {
+    color: #222;
+}
+
+.text-black:hover {
+    color: #222;
 }
 
 .small {
     font-size: .9rem;
-    color: #ccc !important;
+    color: var(--color-text-secondary) !important;
 }
 
 .explain-list {
@@ -252,8 +287,8 @@ footer {
 ul li {
     margin: 6px 0;
     padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.06);
-    border-left: 4px solid #ffaa00;
+    background: var(--background-li);
+    border-left: 4px solid var(--orange-hover);
     border-radius: 6px;
     font-size: 1em;
     margin-bottom: 4px;
@@ -310,14 +345,14 @@ table tbody .worst-wr {
 
 .tip {
     font-size: 0.85rem;
-    opacity: 0.8;
+    opacity: 0.9;
 }
 
 /* tooltips */
 .t {
     position: relative;
     cursor: help;
-    color: #111;
+    color: #48b1ee;
     font-weight: 600;
 }
 
@@ -327,8 +362,8 @@ table tbody .worst-wr {
     bottom: 130%;
     left: 50%;
     transform: translateX(-50%);
-    background: #111;
-    color: #fff;
+    background: var(--background);
+    color: var(--color-text);
     padding: 6px 9px;
     font-size: 0.75rem;
     border-radius: 6px;
@@ -348,7 +383,7 @@ table tbody .worst-wr {
     transform: translateX(-50%);
     border-width: 6px;
     border-style: solid;
-    border-color: #111 transparent transparent transparent;
+    border-color: var(--background) transparent transparent transparent;
     opacity: 0;
     transition: opacity .2s ease;
 }
@@ -362,12 +397,30 @@ table tbody .worst-wr {
 .btn-delete {
     background: #d9534f;
 }
+
 .btn-delete:hover {
     background: #c9302c;
 }
+
 .form-buttons {
     display: flex;
     gap: 10px;
-
 }
 
+.theme-button {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    padding: 8px 12px;
+    background-color: var(--card);
+    border: var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.3s;
+}
+
+.theme-button:hover {
+    background-color: var(--orange);
+    color: #fff;
+}
