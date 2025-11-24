@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overwatch 2 - Support Stats</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>OVERWATCH 2 — SUPPORT STATS</h1>
+    </header>
+
+    <main>
+        <div id="popup">
+            <div id="popupBox">
+                <h3>¿Guardar datos?</h3>
+                <div>
+                    <p>¿Querés que la web recuerde tus estadísticas?</p>
+                    <p class="small">Se guardarán en tu navegador (LocalStorage).</p>
+                </div>
+                <div>
+                    <button class="btn-secondary" onclick="denyStorage()">No, gracias</button>
+                    <button class="btn-primary" onclick="acceptStorage()">Sí, guardar</button>
+                </div>
+            </div>
+        </div>
+
+        <section class="card">
+            <h2>➕ Añadir Temporada</h2>
+
+            <form id="formSeason">
+                <div class="form-grid">
+                    <input type="number" placeholder="Temporada" id="season" required>
+
+                    <input type="number" placeholder="Kills" id="kills" required>
+                    <input type="number" placeholder="Assists" id="assists" required>
+                    <input type="number" placeholder="Deaths" id="deaths" required>
+
+                    <input type="number" placeholder="Partidas Jugadas" id="played">
+                    <input type="number" placeholder="Victorias" id="wins">
+
+                    <input type="number" placeholder="Curación total" id="healing">
+                    <input type="number" placeholder="Daño total" id="damage">
+
+                    <div class="time-input">
+                        <input type="number" placeholder="Tiempo en objetivo" id="timeOnObj">
+                        <div class="unit-buttons" data-target="timeOnObjUnit">
+                            <button type="button" data-unit="h">H</button>
+                            <button type="button" data-unit="m">M</button>
+                            <button type="button" data-unit="s" class="active">S</button>
+                        </div>
+                        <input type="hidden" id="timeOnObjUnit" value="s">
+                    </div>
+
+                    <div class="time-input">
+                        <input type="number" placeholder="Tiempo total" id="totalTime">
+                        <div class="unit-buttons" data-target="totalTimeUnit">
+                            <button type="button" data-unit="h">H</button>
+                            <button type="button" data-unit="m">M</button>
+                            <button type="button" data-unit="s" class="active">S</button>
+                        </div>
+                        <input type="hidden" id="totalTimeUnit" value="s">
+                    </div>
+                </div>
+
+                <div class="form-buttons">
+                    <button type="button" id="deleteBtn" class="btn btn-delete" style="display:none;">Eliminar Temporada</button>
+                    <button type="submit" id="saveBtn" class="btn">Agregar Temporada</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>📊 Estadísticas por Temporada</h2>
+            <table id="statsTable">
+                <thead>
+                    <tr>
+                        <th>Editar</th>
+                        <th>Temporada</th>
+                        <th>KDA</th>
+                        <th>Win Rate (%)</th>
+                        <th>HPM</th>
+                        <th>DPM</th>
+                        <th>Curación/Daño</th>
+                        <th>Impacto</th>
+                        <th>Objetivo (%)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <p class="simple-note">
+                <strong>Nota:</strong>
+                La fila con <span class="green">fondo verde</span> es tu <strong>mejor temporada</strong> y la fila con
+                <span class="red">fondo rojo</span> es tu <strong>peor temporada</strong>.
+                El <span class="green">borde verde</span> marca la mejor WinRate y el <span class="red">borde
+                    rojo</span> marca la peor
+                WinRate.
+            </p>
+        </section>
+
+        <section class="card" id="comparison">
+            <h2>📈 Comparación con temporadas anteriores</h2>
+            <div id="comparisonText">Aún no hay suficientes datos para comparar.</div>
+        </section>
+
+        <section class="card" id="summary"></section>
+
+        <section class="card">
+            <h2>📘 ¿Qué significa cada estadística?</h2>
+
+            <ul class="explain-list">
+
+                <li><strong>KDA:</strong> (Kills + Assists) / Deaths — Mide cuánto aportás por vida.
+                    <em>Un valor <span class="green">alto es bueno.</span></em>
+                </li>
+
+                <li><strong>Win Rate:</strong> (Victorias / Partidas Jugadas) × 100 — Porcentaje de partidas ganadas.
+                    <em>Cuanto <span class="green">más alto, mejor.</span></em>
+                </li>
+
+                <li><strong>HPM:</strong> Curación por minuto — Cuánta curación hacés por minuto.
+                    <em>Un valor <span class="green">alto es muy bueno</span> para supports.</em>
+                </li>
+
+                <li><strong>DPM:</strong> Daño por minuto — Daño promedio por minuto.
+                    <em><span class="green">Alto es bueno</span>, pero depende del héroe.</em>
+                </li>
+
+                <li><strong>Curación/Daño:</strong> Relación entre curación y daño — Muestra tu estilo de juego.
+                    <em><span class="orange">Más alto = más orientado a curar; más bajo = más orientado al
+                            daño.</span></em>
+                </li>
+
+                <li><strong>Impacto:</strong> (Curación/1000 + Asistencias) / Muertes — Mide tu impacto en peleas.
+                    <em>Un <span class="green">valor alto</span> indica una excelente presencia sin morir.</em>
+                </li>
+
+                <li><strong>Objetivo (%):</strong> Tiempo en objetivo respecto del total — Cuánto acompañás el objetivo.
+                    <em><span class="blue">El valor depende del tipo de support:</span></em>
+
+                    <ul>
+                        <li><strong>Backline</strong> (Ana, Mercy, Baptiste, Illari): un %
+                            <span class="blue">medio o bajo es normal.</span>
+                            Si es muy alto, estuviste <span class="red">demasiado adelante</span>.
+                        </li>
+
+                        <li><strong>Melee / Objetivo</strong> (Lucio, Brig): un %
+                            <span class="green">alto es correcto.</span>
+                            Si es muy bajo, estuviste <span class="red">demasiado lejos del punto</span>.
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>Overwatch 2 Support Stats • Creado por <a href="https://instagram.com/lukasbresi"
+                target="_blank">@Lucaasbre</a></p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
