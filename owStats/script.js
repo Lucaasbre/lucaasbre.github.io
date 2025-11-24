@@ -439,3 +439,31 @@ tutorialBtn.addEventListener("click", () => {
         tutorialBtn.textContent = "¿No sabes de dónde sacar esta información? Haz clic aquí y te lo explico.";
     }
 });
+
+const toggleButton = document.getElementById('theme-toggle');
+const body = document.body;
+
+// Detecta tema guardado
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    body.setAttribute('data-theme', savedTheme);
+    toggleButton.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+}
+
+toggleButton.addEventListener('click', () => {
+    const currentTheme = body.getAttribute('data-theme');
+    if (allowStorage === null) {
+        body.setAttribute('data-theme', 'dark');
+        toggleButton.textContent = '☀️';
+    } else if (allowStorage === "true") {
+        if (currentTheme === 'dark') {
+            body.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'light');
+            toggleButton.textContent = '🌙';
+        } else {
+            body.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            toggleButton.textContent = '☀️';
+        }
+    }
+});
