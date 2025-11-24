@@ -295,11 +295,11 @@ table tbody .worst-kda {
 }
 
 table tbody .best-wr {
-    outline: 2px solid #00ff9d;
+    border: 2px solid #01cc7e;
 }
 
 table tbody .worst-wr {
-    outline: 2px solid #ff4d4d;
+    border: 2px solid #ff4d4d;
 }
 
 #comparisonText ul ul li {
@@ -367,4 +367,5 @@ table tbody .worst-wr {
 .form-buttons {
     display: flex;
     gap: 10px;
+
 }
