@@ -69,10 +69,26 @@
                 </div>
 
                 <div class="form-buttons">
-                    <button type="button" id="deleteBtn" class="btn btn-delete" style="display:none;">Eliminar Temporada</button>
+                    <button type="button" id="deleteBtn" class="btn btn-delete" style="display:none;">Eliminar
+                        Temporada</button>
                     <button type="submit" id="saveBtn" class="btn">Agregar Temporada</button>
                 </div>
             </form>
+            <button class="btn-secondary" id="tutorial" style="color: #555;">
+                ¿No sabes de dónde sacar esta información? Haz clic aquí y te lo explico.
+            </button>
+
+            <div id="tutorialContent" style="display: none; margin-top: 10px;">
+                <ul>
+                    <li><strong>Paso 1:</strong> En el inicio del juego, dirígete a la parte superior derecha y abre el
+                        menú (o presiona <strong>ESC</strong>).</li>
+                    <li><strong>Paso 2:</strong> Dentro del menú, selecciona <em>"Perfil de carrera"</em>.</li>
+                    <li><strong>Paso 3:</strong> Luego, selecciona la opción <em>"Estadísticas"</em> en la parte
+                        superior.</li>
+                    <li>Allí podrás ver todas las estadísticas que pide la web, y también filtrar por héroe, modo de
+                        juego o temporada.</li>
+                </ul>
+            </div>
         </section>
 
         <section class="card">
@@ -108,7 +124,10 @@
             <div id="comparisonText">Aún no hay suficientes datos para comparar.</div>
         </section>
 
-        <section class="card" id="summary"><h2>Resumen</h2><p>Aún no hay temporadas añadidas.</p></section>
+        <section class="card" id="summary">
+            <h2>Resumen</h2>
+            <p>Aún no hay temporadas añadidas.</p>
+        </section>
 
         <section class="card">
             <h2>📘 ¿Qué significa cada estadística?</h2>
@@ -161,13 +180,11 @@
     </main>
 
     <footer>
-        <p>Overwatch 2 Support Stats • Creado por <a href="https://lucaasbre.github.io"
-                target="_blank">@Lucaasbre</a></p>
+        <p>Overwatch 2 Support Stats • Creado por <a href="https://lucaasbre.github.io" target="_blank">@Lucaasbre</a>
+        </p>
     </footer>
 
     <script src="script.js"></script>
 </body>
 
-
 </html>
-
