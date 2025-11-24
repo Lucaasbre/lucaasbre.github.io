@@ -18,7 +18,6 @@ function acceptStorage() {
 }
 
 function denyStorage() {
-    localStorage.setItem("allowStorage", "false");
     document.getElementById("popup").style.display = "none";
 }
 
@@ -66,12 +65,15 @@ function renderTable() {
 
     if (data.length === 0) return;
 
-    const bestKDA = data.reduce((a, b) => a.kda > b.kda ? a : b);
-    const worstKDA = data.reduce((a, b) => a.kda < b.kda ? a : b);
-    const bestWR = data.reduce((a, b) => a.winrate > b.winrate ? a : b);
-    const worstWR = data.reduce((a, b) => a.winrate < b.winrate ? a : b);
+    // Ordenar temporadas de menor a mayor
+    const sortedData = [...data].sort((a, b) => a.season - b.season);
 
-    data.forEach(d => {
+    const bestKDA = sortedData.reduce((a, b) => a.kda > b.kda ? a : b);
+    const worstKDA = sortedData.reduce((a, b) => a.kda < b.kda ? a : b);
+    const bestWR = sortedData.reduce((a, b) => a.winrate > b.winrate ? a : b);
+    const worstWR = sortedData.reduce((a, b) => a.winrate < b.winrate ? a : b);
+
+    sortedData.forEach(d => {
 
         let rowClass = "";
 
@@ -254,16 +256,18 @@ form.addEventListener("submit", e => {
 });
 
 // COMPARISON
-
 function renderComparison() {
     if (data.length < 2) {
         comparisonText.innerHTML = "<p>No hay suficientes temporadas para comparar.</p>";
         return;
     }
 
-    const current = data[data.length - 1];
-    const prev1 = data[data.length - 2];
-    const prev2 = data.length >= 3 ? data[data.length - 3] : null;
+    // Ordenar las temporadas por número de season
+    const sortedData = [...data].sort((a, b) => a.season - b.season);
+
+    const current = sortedData[sortedData.length - 1]; // temporada más reciente
+    const prev1 = sortedData[sortedData.length - 2];   // 1 temporada atrás
+    const prev2 = sortedData.length >= 3 ? sortedData[sortedData.length - 3] : null; // 2 temporadas atrás
 
     let html = `
         <p>Comparando la temporada <strong>${current.season}</strong> con:</p>
