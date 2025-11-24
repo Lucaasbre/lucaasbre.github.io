@@ -262,12 +262,11 @@ function renderComparison() {
         return;
     }
 
-    // Ordenar las temporadas por número de season
     const sortedData = [...data].sort((a, b) => a.season - b.season);
 
-    const current = sortedData[sortedData.length - 1]; // temporada más reciente
-    const prev1 = sortedData[sortedData.length - 2];   // 1 temporada atrás
-    const prev2 = sortedData.length >= 3 ? sortedData[sortedData.length - 3] : null; // 2 temporadas atrás
+    const current = sortedData[sortedData.length - 1];
+    const prev1 = sortedData[sortedData.length - 2]; 
+    const prev2 = sortedData.length >= 3 ? sortedData[sortedData.length - 3] : null;
 
     let html = `
         <p>Comparando la temporada <strong>${current.season}</strong> con:</p>
@@ -443,7 +442,6 @@ tutorialBtn.addEventListener("click", () => {
 const toggleButton = document.getElementById('theme-toggle');
 const body = document.body;
 
-// Detecta tema guardado
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
     body.setAttribute('data-theme', savedTheme);
@@ -467,3 +465,4 @@ toggleButton.addEventListener('click', () => {
         }
     }
 });
+
