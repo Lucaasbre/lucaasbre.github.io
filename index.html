@@ -1,9 +1,237 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Lucaasbre</title>
-  </head>
-  <body>
-    <h1>¡Muy pronto!</h1>
-  </body>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Personal</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="./src/Icons/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        rel="stylesheet">
+
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+</head>
+
+<body>
+    <main class="container" id="scrollContainer">
+        <header class="section" id="intro" section-title="Inicio">
+            <h1>Lucaasbre</h1>
+            <p>Desarrollador indie / Creador de juegos / Cosas raras que hago</p>
+        </header>
+
+        <section class="section" id="about" section-title="Sobre Mí">
+            <div>
+                <h2>Sobre mí</h2>
+                <p>Hola! Soy Lucas, me gusta crear juegos y proyectos web. También hago dibujos (no muy buenos, pero son
+                    lindos)
+                    y modelado 3D, que sorprendentemente salen un poco mejor que mis dibujos.</p>
+                <p>Uso herramientas como Unity, Blender, HTML/CSS/JS/JAVA… y un poco de magia para llevar mis ideas a la
+                    vida.
+                </p>
+            </div>
+        </section>
+
+        <section class="section" id="projects" section-title="Proyectos">
+            <div>
+                <div class="projects">
+                    <div class="project-card overwatch">
+                        <h3 style="color:#e65d0f;">Overwatch 2 - Support Stats</h3>
+                        <p>Un pequeño proyecto web para ver tus estadísticas de Overwatch 2… y sentirte mejor o peor
+                            según
+                            los
+                            resultados.</p>
+                        <a href="https://lucaasbre.github.io/owStats/index.html">Ver proyecto</a>
+                    </div>
+                    <div class="project-card sinistra" style="display: none;">
+                        <h3 class="pt-serif-bold">Sinistra Games</h3>
+                        <p class="pt-serif-regular">Donde subo mis juegos de terror, para asustarte un poquito.</p>
+                        <a href="https://sinistragames.itch.io/">Ver Itch</a>
+                    </div>
+                    <div class="project-card mates">
+                        <h3>Mates y Jueguitos</h3>
+                        <p>Juegos experimentales, pensados para pasar el rato.</p>
+                        <a href="https://matesyjueguitos.itch.io/">Ver Itch</a>
+                    </div>
+                    <div class="project-card instagram">
+                        <h3>Instagram</h3>
+                        <p>Mi Instagram, donde subo cosas random, dibujitos y otras boludeces.</p>
+                        <a href="https://www.instagram.com/lukasbresi">Ver Instagram</a>
+                    </div>
+                </div>
+                <div style="width: 40%; display: flex; flex-direction: column; place-content: center;place-items: end;">
+                    <h2>Mis Proyectos</h2>
+                    <p>Estos son algunos de los proyectos que he creado, desde juegos hasta herramientas web. Cada uno
+                        refleja algo que me apasiona.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="drawings" section-title="Dibujos">
+            <div>
+                <div style="width: 40%;">
+                    <h2>Mis Dibujos</h2>
+                    <p>Me gusta dibujar porque puedo crear personajes y mundos que solo existen en mi cabeza. Es
+                        relajante y
+                        me permite expresar mi sentimientos.</p>
+                </div>
+                <div
+                    style="width: 420px; height: 780px; border-radius: 10px; background-color: #222; display: flex; flex-direction: column; place-items: center;">
+                    <div
+                        style="width: 400px; height: 250px; border-radius: 40px; background-color: #4ce0ae; margin: 10px 0; display: flex; flex-direction: column; place-content: start end; padding-bottom: 30px;">
+                        <div
+                            style="width: 20px; height: 100px; border-radius: 5px; background-color: #222; margin-left: 30px; margin-bottom: 30px;">
+                        </div>
+                    </div>
+                    <div
+                        style="width: 400px; height: 500px; border-radius: 40px; background-color: #4ce0ae; padding-top: 30px; margin-bottom: 10px;">
+                        <div
+                            style="width: 20px; height: 100px; border-radius: 5px; background-color: #222; margin-left: 30px; margin-top: 30px;">
+                            <div class="collage">
+                                <img src="Draws/Kira.png" alt="Sasha de compañia" class="zoomable img1">
+                                <img src="Draws/Stella.png" alt="Stellas clunis magnae" class="zoomable img2">
+                                <img src="Draws/Skull.png" alt="Skull" class="zoomable img3">
+                                <img src="Draws/Vampire.png" alt="Vampire" class="zoomable img4">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div id="lightbox">
+            <button id="close">&times;</button>
+            <img src="" alt="Dibujo ampliado" id="lightbox-img">
+        </div>
+
+        <section class="section" id="models" section-title="Modelos 3D">
+            <div>
+                <h2>Mis Modelos 3D</h2>
+                <p>Modelar me divierte y me sirve para crear assets para mis juegos.</p>
+                <div class="model-gallery">
+                    <model-viewer src="Models/Clock.glb" alt="Posión" auto-rotate rotation-per-second="30deg"
+                        camera-controls ar poster style="width:300px; height:300px;"></model-viewer>
+                    <model-viewer src="Models/Potion.glb" alt="Reloj" auto-rotate rotation-per-second="30deg"
+                        camera-controls ar poster style="width:300px; height:300px;"></model-viewer>
+                    <model-viewer src="Models/Mate.glb" alt="Mate" auto-rotate rotation-per-second="30deg"
+                        camera-controls ar poster style="width:300px; height:300px;"></model-viewer>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="nav-dots" id="navDots"></div>
+
+    <script>
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const closeBtn = document.getElementById('close');
+
+        document.querySelectorAll('.zoomable').forEach(img => {
+            img.addEventListener('click', () => {
+                lightbox.style.display = 'flex';
+                lightboxImg.src = img.src;
+                scale = 1;
+                lightboxImg.style.transform = `scale(${scale})`;
+            });
+        });
+
+        closeBtn.addEventListener('click', () => {
+            lightbox.style.display = 'none';
+        });
+
+        let scale = 1;
+        lightbox.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                scale += 0.1;
+            } else {
+                scale -= 0.1;
+            }
+            if (scale < 0.5) scale = 0.5;
+            if (scale > 5) scale = 5;
+            lightboxImg.style.transform = `scale(${scale})`;
+        });
+
+        // Sections
+        const sections = document.querySelectorAll('.section');
+        const navDots = document.getElementById('navDots');
+        let currentSection = 0;
+        let isScrolling = false;
+
+        sections.forEach((_, index) => {
+            const dot = document.createElement('div');
+            dot.classList.add('nav-dot');
+            dot.setAttribute('data-index', index);
+            const title = sections[index].getAttribute('section-title') || `Sección ${index + 1}`;
+            dot.setAttribute('data-tooltip', title);
+
+            dot.innerHTML = '<div class="dot-circle"></div>';
+            if (index === 0) {
+                dot.classList.add('active');
+                dot.querySelector('.dot-circle').innerHTML = '<i class="fas fa-skull"></i>';
+            }
+
+            dot.addEventListener('click', () => {
+                currentSection = index;
+                scrollToSection(index);
+            });
+
+            navDots.appendChild(dot);
+        });
+
+        const updateDots = () => {
+            document.querySelectorAll('.nav-dot').forEach((dot, i) => {
+                if (i === currentSection) {
+                    dot.classList.add('active');
+                    dot.querySelector('.dot-circle').innerHTML = '<i class="fas fa-skull"></i>';
+                } else {
+                    dot.classList.remove('active');
+                    dot.querySelector('.dot-circle').innerHTML = '';
+                }
+            });
+        };
+
+        const scrollToSection = (index) => {
+            if (index < 0 || index >= sections.length) return;
+            isScrolling = true;
+            window.scrollTo({
+                top: sections[index].offsetTop,
+                behavior: 'smooth'
+            });
+            updateDots();
+            setTimeout(() => isScrolling = false, 800);
+        };
+
+        window.addEventListener('wheel', (e) => {
+            if (isScrolling) return;
+
+            if (e.deltaY > 0 && currentSection < sections.length - 1) {
+                currentSection++;
+                scrollToSection(currentSection);
+            } else if (e.deltaY < 0 && currentSection > 0) {
+                currentSection--;
+                scrollToSection(currentSection);
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (isScrolling) return;
+
+            if (e.key === 'ArrowDown' && currentSection < sections.length - 1) {
+                currentSection++;
+                scrollToSection(currentSection);
+            } else if (e.key === 'ArrowUp' && currentSection > 0) {
+                currentSection--;
+                scrollToSection(currentSection);
+            }
+        });
+
+        window.addEventListener('resize', () => scrollToSection(currentSection));
+    </script>
+</body>
+
 </html>
