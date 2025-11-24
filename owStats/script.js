@@ -176,11 +176,11 @@ function clearForm() {
 
     document.querySelectorAll(`[data-target="timeOnObjUnit"] button`).forEach(b => {
         b.classList.remove("active");
-        if(b.dataset.unit === "s") b.classList.add("active");
+        if (b.dataset.unit === "s") b.classList.add("active");
     });
     document.querySelectorAll(`[data-target="totalTimeUnit"] button`).forEach(b => {
         b.classList.remove("active");
-        if(b.dataset.unit === "s") b.classList.add("active");
+        if (b.dataset.unit === "s") b.classList.add("active");
     });
 
     document.getElementById("deleteBtn").style.display = "none";
@@ -425,4 +425,17 @@ document.getElementById("deleteBtn").addEventListener("click", () => {
 
     renderTable();
     clearForm();
+});
+
+const tutorialBtn = document.getElementById("tutorial");
+const tutorialContent = document.getElementById("tutorialContent");
+
+tutorialBtn.addEventListener("click", () => {
+    if (tutorialContent.style.display === "none") {
+        tutorialContent.style.display = "block";
+        tutorialBtn.textContent = "Ocultar explicación";
+    } else {
+        tutorialContent.style.display = "none";
+        tutorialBtn.textContent = "¿No sabes de dónde sacar esta información? Haz clic aquí y te lo explico.";
+    }
 });
