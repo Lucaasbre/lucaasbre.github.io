@@ -618,6 +618,7 @@ function copyCanvasContent(originalCanvas, clonedCanvas) {
     ctx.drawImage(originalCanvas, 0, 0);
 }
 
+
 function exportPDF(buttonShare, selector, filename) {
     const original = document.querySelector(selector);
 
@@ -632,7 +633,14 @@ function exportPDF(buttonShare, selector, filename) {
     clone.style.top = "-9999px";
 
     document.body.appendChild(clone);
-
+    
+    const originalCanvas = original.querySelector("canvas");
+    const clonedCanvas = clone.querySelector("canvas");
+    if (originalCanvas && clonedCanvas) {
+        clonedCanvas.width = originalCanvas.width;
+        clonedCanvas.height = originalCanvas.height;
+        copyCanvasContent(originalCanvas, clonedCanvas);
+    }
     html2canvas(clone, { scale: 2, backgroundColor: null }).then(canvas => {
         const imgData = canvas.toDataURL("image/png");
         const pdf = new jspdf.jsPDF("p", "mm", "a4");
@@ -931,4 +939,5 @@ document.querySelectorAll(".menu-btn").forEach(btn => {
 
 updateActiveMenu();
 window.addEventListener("hashchange", updateActiveMenu);
+
 
