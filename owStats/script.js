@@ -1,24 +1,36 @@
 // LOCAL STORAGE
 let data = [];
-
 const allowStorage = localStorage.getItem("allowStorage");
+
+const simpleBtn = document.getElementById("modeSimple");
+const advBtn = document.getElementById("modeAdvanced");
+const tbody = document.querySelector("#statsTable tbody");
+const summary = document.querySelector("#summary");
+const form = document.getElementById("formSeason");
+const tutorialBtn = document.getElementById("tutorial");
+const tutorialContent = document.getElementById("tutorialContent");
+const toggleButton = document.getElementById('theme-toggle');
+const body = document.body;
+const savedTheme = localStorage.getItem('theme');
+const icon = toggleButton.querySelector("i");
+const btnShareTable = document.querySelector("#shareTable");
+const btnShareGraphics = document.querySelector("#shareGraphics");
 
 function showPopup() {
     if (allowStorage === null) {
-        document.getElementById("popup").style.display = "flex";
-    } else if (allowStorage === "true") {
-        loadFromStorage();
+        document.getElementById("popupSave").style.display = "flex";
     }
+    loadFromStorage();
 }
 
 function acceptStorage() {
     localStorage.setItem("allowStorage", "true");
-    document.getElementById("popup").style.display = "none";
+    document.getElementById("popupSave").style.display = "none";
     saveToStorage();
 }
 
 function denyStorage() {
-    document.getElementById("popup").style.display = "none";
+    document.getElementById("popupSave").style.display = "none";
 }
 
 function saveToStorage() {
@@ -30,6 +42,7 @@ function saveToStorage() {
 function loadFromStorage() {
     const saved = localStorage.getItem("seasonData");
     if (saved) {
+        updateStatsVisibility();
         data = JSON.parse(saved);
         renderTable();
     }
@@ -39,9 +52,11 @@ function clearStorage() {
     localStorage.removeItem("seasonData");
     data = [];
     renderTable();
+    updateStatsVisibility();
 }
 
-// BASIC FUNCTIONS
+
+// BASIC FUNCTIONS (KDA, WINRATE, ETC.)
 function KDA(kills, assists, deaths) { return (kills + assists) / deaths; }
 function WinRate(played, wins) { return (wins / played) * 100; }
 function HPM(healing, min) { return healing / min; }
@@ -56,27 +71,43 @@ function convertToSeconds(value, unit) {
     return value;
 }
 
+
 // RENDER TABLE + SUMMARY
-const tbody = document.querySelector("#statsTable tbody");
-const summary = document.querySelector("#summary");
+function fmtNum(value, digits = 2) {
+    if (value === null || value === undefined || isNaN(value) || !isFinite(value)) {
+        return "0,00";
+    }
+
+    if (digits === 0) {
+        return Number(value)
+            .toLocaleString("es-ES", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    return fmt(Number(value).toFixed(digits), digits);
+}
 
 function renderTable() {
     tbody.innerHTML = "";
-
     if (data.length === 0) return;
 
-    // Ordenar temporadas de menor a mayor
     const sortedData = [...data].sort((a, b) => a.season - b.season);
 
-    const bestKDA = sortedData.reduce((a, b) => a.kda > b.kda ? a : b);
-    const worstKDA = sortedData.reduce((a, b) => a.kda < b.kda ? a : b);
+    const bestKDA = sortedData.reduce((a, b) => {
+        const aVal = (a.kda === 0) ? Infinity : a.kda;
+        const bVal = (b.kda === 0) ? Infinity : b.kda;
+        return aVal > bVal ? a : b;
+    });
+    const worstKDA = sortedData.reduce((a, b) => {
+        const aVal = (a.kda === 0) ? Infinity : a.kda;
+        const bVal = (b.kda === 0) ? Infinity : b.kda;
+        return aVal < bVal ? a : b;
+    });
     const bestWR = sortedData.reduce((a, b) => a.winrate > b.winrate ? a : b);
     const worstWR = sortedData.reduce((a, b) => a.winrate < b.winrate ? a : b);
 
     sortedData.forEach(d => {
-
         let rowClass = "";
-
+        
         if (d === bestKDA) rowClass += " best-kda ";
         if (d === worstKDA) rowClass += " worst-kda ";
         if (d === bestWR) rowClass += " best-wr ";
@@ -86,21 +117,22 @@ function renderTable() {
             <tr class="${rowClass}">
                 <td><button class="edit-btn" data-index="${data.indexOf(d)}">Editar</button></td>
                 <td>${d.season}</td>
-                <td>${d.kda ? d.kda.toFixed(2) : "0.00"}</td>
-                <td>${d.winrate ? d.winrate.toFixed(2) : "0.00"}</td>
-                <td>${d.hpm.toFixed(0)}</td>
-                <td>${d.dpm.toFixed(0)}</td>
-                <td>${d.sratio ? d.sratio.toFixed(2) : "0.00"}</td>
-                <td>${d.impact ? d.impact.toFixed(2) : "0.00"}</td>
-                <td>${d.obj.toFixed(2)}</td>
+                <td>${(d.kda == null || d.kda === 0) ? "Infinito" : fmtNum(d.kda)}</td>
+                <td>${fmtNum(d.winrate)}</td>
+                <td class="col-adv">${fmtNum(d.hpm, 1)}</td>
+                <td class="col-adv">${fmtNum(d.dpm, 1)}</td>
+                <td class="col-adv">${fmtNum(d.sratio)}</td>
+                <td class="col-adv">${fmtNum(d.impact)}</td>
+                <td>${fmtNum(d.obj)}</td>
             </tr>
         `;
-
         tbody.innerHTML += row;
     });
 
     renderSummary();
     renderComparison();
+    updateStatsVisibility();
+    setSimpleMode();
 }
 
 function renderSummary() {
@@ -109,20 +141,45 @@ function renderSummary() {
         return;
     }
 
-    const bestKDA = data.reduce((a, b) => a.kda > b.kda ? a : b);
-    const worstKDA = data.reduce((a, b) => a.kda < b.kda ? a : b);
+    const bestKDA = data.reduce((a, b) => {
+        const aVal = (a.kda === 0) ? Infinity : a.kda;
+        const bVal = (b.kda === 0) ? Infinity : b.kda;
+        return aVal > bVal ? a : b;
+    });
+
+    const worstKDA = data.reduce((a, b) => {
+        const aVal = (a.kda === 0) ? Infinity : a.kda;
+        const bVal = (b.kda === 0) ? Infinity : b.kda;
+        return aVal < bVal ? a : b;
+    });
+
     const bestWR = data.reduce((a, b) => a.winrate > b.winrate ? a : b);
     const worstWR = data.reduce((a, b) => a.winrate < b.winrate ? a : b);
 
     summary.innerHTML = `
         <h2>Resumen</h2>
-        <p>🏆 Mejor KDA: S${bestKDA.season} (${bestKDA.kda ? bestKDA.kda.toFixed(2) : "0.00"})</p>
-        <p>💀 Peor KDA: S${worstKDA.season} (${worstKDA.kda ? worstKDA.kda.toFixed(2) : "0.00"})</p>
-        <p>🏅 Mejor WinRate: S${bestWR.season} (${bestWR.winrate ? bestWR.winrate.toFixed(2) : "0.00"}%)</p>
-        <p>❌ Peor WinRate: S${worstWR.season} (${worstWR.winrate ? worstWR.winrate.toFixed(2) : "0.00"}%)</p>
+
+        <p>🏆 Mejor KDA: 
+            S${bestKDA.season} 
+            (${(bestKDA.kda == null || bestKDA.kda === 0) ? "Infinito" : fmtNum(bestKDA.kda, 2)})
+        </p>
+
+        <p>💀 Peor KDA: 
+            S${worstKDA.season} 
+            (${(worstKDA.kda == null || worstKDA.kda === 0) ? "Infinito" : fmtNum(worstKDA.kda, 2)})
+        </p>
+
+        <p>🏅 Mejor WinRate: 
+            S${bestWR.season} (${fmtNum(bestWR.winrate)}%)
+        </p>
+
+        <p>❌ Peor WinRate: 
+            S${worstWR.season} (${fmtNum(worstWR.winrate)}%)
+        </p>
     `;
 }
 
+// EDIT SEASON
 let editingIndex = null;
 
 function loadSeasonIntoForm(index) {
@@ -145,54 +202,38 @@ function loadSeasonIntoForm(index) {
     let rawTotal = s.totalTime;
 
     if (unitObj === "h") rawObj /= 3600;
-    if (unitObj === "m") rawObj /= 60;
+    else if (unitObj === "m") rawObj /= 60;
 
     if (unitTotal === "h") rawTotal /= 3600;
-    if (unitTotal === "m") rawTotal /= 60;
+    else if (unitTotal === "m") rawTotal /= 60;
 
     document.getElementById("timeOnObj").value = rawObj;
-    document.getElementById("totalTime").value = rawTotal;
-
     document.getElementById("timeOnObjUnit").value = unitObj;
+    document.getElementById("totalTime").value = rawTotal;
     document.getElementById("totalTimeUnit").value = unitTotal;
 
-    document.querySelectorAll(`[data-target="timeOnObjUnit"] button`).forEach(b => b.classList.remove("active"));
-    document.querySelector(`[data-target="timeOnObjUnit"] button[data-unit="${unitObj}"]`).classList.add("active");
-
-    document.querySelectorAll(`[data-target="totalTimeUnit"] button`).forEach(b => b.classList.remove("active"));
-    document.querySelector(`[data-target="totalTimeUnit"] button[data-unit="${unitTotal}"]`).classList.add("active");
-
     document.getElementById("saveBtn").textContent = "Guardar Cambios";
-    document.getElementById("deleteBtn").style.display = "inline-block";
+    document.getElementById("deleteBtn").style.display = "block";
+
+    document.querySelectorAll(".section-content").forEach(sec => sec.style.display = "flex");
 
     document.querySelector(".card").scrollIntoView({ behavior: "smooth" });
 }
 
 function clearForm() {
     document.getElementById("formSeason").reset();
-
     document.getElementById("timeOnObjUnit").value = "s";
     document.getElementById("totalTimeUnit").value = "s";
-
-    document.querySelectorAll(`[data-target="timeOnObjUnit"] button`).forEach(b => {
-        b.classList.remove("active");
-        if (b.dataset.unit === "s") b.classList.add("active");
-    });
-    document.querySelectorAll(`[data-target="totalTimeUnit"] button`).forEach(b => {
-        b.classList.remove("active");
-        if (b.dataset.unit === "s") b.classList.add("active");
-    });
-
     document.getElementById("deleteBtn").style.display = "none";
-
     document.getElementById("saveBtn").textContent = "Agregar Temporada";
+
+    document.querySelectorAll(".section-content").forEach(sec => sec.style.display = "none");
 
     editingIndex = null;
 }
 
-// ADD SEASON
-const form = document.getElementById("formSeason");
 
+// ADD SEASON
 form.addEventListener("submit", e => {
     e.preventDefault();
 
@@ -202,35 +243,39 @@ form.addEventListener("submit", e => {
     const deaths = +document.getElementById("deaths").value;
     const played = +document.getElementById("played").value || 0;
     const wins = +document.getElementById("wins").value || 0;
+
+    if (wins > played) {
+        alert("❌ Las victorias no pueden ser mayores que las partidas jugadas.");
+        return;
+    }
+
     const healing = +document.getElementById("healing").value || 0;
     const damage = +document.getElementById("damage").value || 0;
+
     const rawTimeOnObj = +document.getElementById("timeOnObj").value || 0;
     const rawTotalTime = +document.getElementById("totalTime").value || 1;
+
     const timeOnObjUnit = document.getElementById("timeOnObjUnit").value;
     const totalTimeUnit = document.getElementById("totalTimeUnit").value;
 
     const timeOnObj = convertToSeconds(rawTimeOnObj, timeOnObjUnit);
     const totalTime = convertToSeconds(rawTotalTime, totalTimeUnit);
 
+
+    if (timeOnObj > totalTime) {
+        alert("❌ El tiempo en objetivo no puede ser mayor que el tiempo total jugado.");
+        return;
+    }
     const minutes = totalTime / 60;
 
     const entry = {
-        season,
-        kills,
-        assists,
-        deaths,
-        played,
-        wins,
-        healing,
-        damage,
+        season, kills, assists, deaths,
+        played, wins, healing, damage,
 
-        rawTimeOnObj: rawTimeOnObj,
-        rawTotalTime: rawTotalTime,
-        timeOnObjUnit,
-        totalTimeUnit,
+        rawTimeOnObj, rawTotalTime,
+        timeOnObjUnit, totalTimeUnit,
 
-        timeOnObj,
-        totalTime,
+        timeOnObj, totalTime,
 
         kda: KDA(kills, assists, deaths),
         winrate: WinRate(played, wins),
@@ -241,21 +286,28 @@ form.addEventListener("submit", e => {
         obj: ObjectiveFocus(timeOnObj, totalTime)
     };
 
-
     if (editingIndex !== null) {
         data[editingIndex] = entry;
         editingIndex = null;
-        document.querySelector("#saveBtn").textContent = "Agregar Temporada";
+        document.getElementById("saveBtn").textContent = "Agregar Temporada";
     } else {
         data.push(entry);
     }
 
+    alert("Temporada agregada / actualizada!");
+
     renderTable();
     saveToStorage();
     clearForm();
+    updateStatsVisibility();
+    renderSingleChart();
+
+    const openSection = document.querySelector(".open");
+    if (openSection) openSection.style.display = "flex";
 });
 
-// COMPARISON
+
+// COMPARISON BETWEEN SEASONS
 function renderComparison() {
     if (data.length < 2) {
         comparisonText.innerHTML = "<p>No hay suficientes temporadas para comparar.</p>";
@@ -264,50 +316,41 @@ function renderComparison() {
 
     const sortedData = [...data].sort((a, b) => a.season - b.season);
 
-    const current = sortedData[sortedData.length - 1];
-    const prev1 = sortedData[sortedData.length - 2]; 
-    const prev2 = sortedData.length >= 3 ? sortedData[sortedData.length - 3] : null;
+    const current = sortedData.at(-1);
+    const prev1 = sortedData.at(-2);
+    const prev2 = sortedData.length >= 3 ? sortedData.at(-3) : null;
 
-    let html = `
-        <p>Comparando la temporada <strong>${current.season}</strong> con:</p>
-        <ul>
-    `;
+    let html = `<p>Comparando la temporada <strong>${current.season}</strong> con:</p><ul>`;
 
-    html += `
-        <li>📌 <strong>1 temporada atrás (S${prev1.season})</strong>
-            <ul>
-                ${compareMetric("KDA", current.kda, prev1.kda)}
-                ${compareMetric("Win Rate", current.winrate, prev1.winrate)}
-                ${compareMetric("Curación por minuto", current.hpm, prev1.hpm)}
-                ${compareMetric("Daño por minuto", current.dpm, prev1.dpm)}
-                ${compareMetric("Curación/Daño", current.sratio, prev1.sratio)}
-                ${compareMetric("Impacto", current.impact, prev1.impact)}
-                ${compareMetric("Objetivo (%)", current.obj, prev1.obj)}
-            </ul>
-        </li>
-    `;
+    html += generateComparisonBlock("1 temporada atrás", prev1, current);
 
     if (prev2) {
-        html += `
-            <li>📌 <strong>2 temporadas atrás (S${prev2.season})</strong>
-                <ul>
-                    ${compareMetric("KDA", current.kda, prev2.kda)}
-                    ${compareMetric("Win Rate", current.winrate, prev2.winrate)}
-                    ${compareMetric("Curación por minuto", current.hpm, prev2.hpm)}
-                    ${compareMetric("Daño por minuto", current.dpm, prev2.dpm)}
-                    ${compareMetric("Curación/Daño", current.sratio, prev2.sratio)}
-                    ${compareMetric("Impacto", current.impact, prev2.impact)}
-                    ${compareMetric("Objetivo (%)", current.obj, prev2.obj)}
-                </ul>
-            </li>
-        `;
+        html += generateComparisonBlock("2 temporadas atrás", prev2, current);
     }
 
-    html += `</ul>`;
+    html += "</ul>";
 
     comparisonText.innerHTML = html;
 }
 
+function generateComparisonBlock(label, past, current) {
+    return `
+        <li>📌 <strong>${label} (S${past.season})</strong>
+            <ul>
+                ${compareMetric("KDA", current.kda, past.kda)}
+                ${compareMetric("Win Rate", current.winrate, past.winrate)}
+                ${compareMetric("Curación por minuto", current.hpm, past.hpm)}
+                ${compareMetric("Daño por minuto", current.dpm, past.dpm)}
+                ${compareMetric("Curación/Daño", current.sratio, past.sratio)}
+                ${compareMetric("Impacto", current.impact, past.impact)}
+                ${compareMetric("Objetivo (%)", current.obj, past.obj)}
+            </ul>
+        </li>
+    `;
+}
+
+
+// RECOMMENDATIONS
 function getRecommendation(name, improved) {
     const tips = {
         "KDA": {
@@ -388,18 +431,31 @@ function compareMetric(name, current, past) {
     }
 }
 
+
+// VISIBILITY OF THE STATE
+function updateStatsVisibility() {
+    const saved = JSON.parse(localStorage.getItem("seasonData") || "[]");
+    const stats = document.getElementById("stats-containers");
+    const noSeasons = document.getElementById("noSeasons");
+
+    if (data.length > 0 || saved.length > 0) {
+        noSeasons.style.display = "none";
+        stats.style.display = "block";
+    } else {
+        noSeasons.style.display = "block";
+        stats.style.display = "none";
+    }
+}
+
+updateStatsVisibility();
 showPopup();
 
-document.querySelectorAll(".unit-buttons button").forEach(btn => {
-    btn.addEventListener("click", () => {
-        const parent = btn.parentElement;
-        const targetId = parent.dataset.target;
 
-        parent.querySelectorAll("button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-
-        document.getElementById(targetId).value = btn.dataset.unit;
-    });
+// GENERAL EVENTS
+document.getElementById("popupSave").addEventListener("click", (e) => {
+    if (e.target === document.getElementById("popupSave")) {
+        document.getElementById("popupSave").style.display = "none";
+    }
 });
 
 document.addEventListener("click", function (e) {
@@ -413,7 +469,6 @@ document.getElementById("deleteBtn").addEventListener("click", () => {
     if (editingIndex === null) return;
 
     const seasonNumber = data[editingIndex].season;
-
     const ok = confirm(`¿Seguro que querés eliminar la temporada ${seasonNumber}?`);
     if (!ok) return;
 
@@ -421,13 +476,28 @@ document.getElementById("deleteBtn").addEventListener("click", () => {
     editingIndex = null;
 
     saveToStorage();
-
+    updateStatsVisibility();
     renderTable();
     clearForm();
+    renderSingleChart();
 });
 
-const tutorialBtn = document.getElementById("tutorial");
-const tutorialContent = document.getElementById("tutorialContent");
+
+// UNIT BUTTONS
+document.querySelectorAll(".unit-buttons button").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const parent = btn.parentElement;
+        const targetId = parent.dataset.target;
+
+        parent.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        document.getElementById(targetId).value = btn.dataset.unit;
+    });
+});
+
+
+// TUTORIAL
 
 tutorialBtn.addEventListener("click", () => {
     if (tutorialContent.style.display === "none") {
@@ -439,30 +509,394 @@ tutorialBtn.addEventListener("click", () => {
     }
 });
 
-const toggleButton = document.getElementById('theme-toggle');
-const body = document.body;
 
-const savedTheme = localStorage.getItem('theme');
+// THEME (DARK / LIGHT)
+
 if (savedTheme) {
     body.setAttribute('data-theme', savedTheme);
-    toggleButton.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+    icon.className = savedTheme === 'dark' ? "fas fa-sun" : "fas fa-moon";
 }
 
 toggleButton.addEventListener('click', () => {
     const currentTheme = body.getAttribute('data-theme');
+
     if (allowStorage === null) {
         body.setAttribute('data-theme', 'dark');
-        toggleButton.textContent = '☀️';
-    } else if (allowStorage === "true") {
+        icon.className = "fas fa-sun";
+        return;
+    }
+
+    if (allowStorage === "true") {
         if (currentTheme === 'dark') {
             body.removeAttribute('data-theme');
             localStorage.setItem('theme', 'light');
-            toggleButton.textContent = '🌙';
+            icon.className = "fas fa-moon";
         } else {
             body.setAttribute('data-theme', 'dark');
             localStorage.setItem('theme', 'dark');
-            toggleButton.textContent = '☀️';
+            icon.className = "fas fa-sun";
         }
+    }
+
+    renderSingleChart();
+});
+
+
+// EXPORT PNG/PDF
+
+document.getElementById("shareTable").addEventListener("click", () => {
+    document.getElementById("popupShareTable").style.display = "flex";
+});
+
+document.getElementById("popupShareTable").addEventListener("click", (e) => {
+    if (e.target === document.getElementById("popupShareTable")) {
+        document.getElementById("popupShareTable").style.display = "none";
     }
 });
 
+document.getElementById("closePopupShareTable").addEventListener("click", () => {
+    document.getElementById("popupShareTable").style.display = "none";
+});
+
+document.getElementById("shareGraphics").addEventListener("click", () => {
+    document.getElementById("popupShareGraphics").style.display = "flex";
+});
+
+document.getElementById("popupShareGraphics").addEventListener("click", (e) => {
+    if (e.target === document.getElementById("popupShareGraphics")) {
+        document.getElementById("popupShareGraphics").style.display = "none";
+    }
+});
+
+document.getElementById("closePopupShareGraphics").addEventListener("click", () => {
+    document.getElementById("popupShareGraphics").style.display = "none";
+});
+
+const urlPara = document.createElement("p");
+urlPara.textContent = window.location.href;
+urlPara.style.fontSize = "12px";
+urlPara.style.opacity = "0.7";
+urlPara.style.marginTop = "10px";
+
+function exportPNG(buttonShare, childOfCard, filename) {
+    const card = document.querySelector(childOfCard).parentElement;
+    buttonShare.style.display = "none";
+    card.appendChild(urlPara);
+
+    html2canvas(card, { scale: 2, backgroundColor: null })
+        .then(canvas => {
+            const link = document.createElement("a");
+            link.download = filename + ".png";
+            link.href = canvas.toDataURL();
+            link.click();
+        })
+        .finally(() => {
+            urlPara.remove();
+            buttonShare.style.display = "block";
+        });
+}
+
+function exportPDF(buttonShare, childOfCard, filename) {
+    const card = document.querySelector(childOfCard).parentElement;
+    buttonShare.style.display = "none";
+    card.appendChild(urlPara);
+
+    html2canvas(card, { scale: 2, backgroundColor: null })
+        .then(canvas => {
+            const imgData = canvas.toDataURL("image/png");
+            const pdf = new jspdf.jsPDF("p", "mm", "a4");
+
+            const width = 190;
+            const ratio = canvas.height / canvas.width;
+            const height = width * ratio;
+
+            pdf.addImage(imgData, "PNG", 10, 10, width, height);
+            pdf.save(filename + ".pdf");
+        })
+        .finally(() => {
+            urlPara.remove();
+            buttonShare.style.display = "block";
+        });
+}
+
+document.getElementById("exportTablePNG").addEventListener("click", () => exportPNG(btnShareTable, "#stats"));
+document.getElementById("exportTablePDF").addEventListener("click", () => exportPDF(btnShareTable, "#stats"));
+document.getElementById("exportGraphicsPNG").addEventListener("click", () => {
+    const sel = document.getElementById("chartSelector").value;
+    const datasets = { kda: "KDA", winrate: "WinRate", hpm: "HPM", dpm: "DPM" };
+    exportPNG(btnShareGraphics, "#chartsContainer", datasets[sel]);
+});
+document.getElementById("exportGraphicsPDF").addEventListener("click", () => {
+    const sel = document.getElementById("chartSelector").value;
+    const datasets = { kda: "KDA", winrate: "WinRate", hpm: "HPM", dpm: "DPM" };
+    exportPDF(btnShareGraphics, "#chartsContainer", datasets[sel]);
+});
+
+
+// IMPORT/EXPORT JSON
+document.getElementById("exportData").addEventListener("click", () => {
+    const saved = JSON.parse(localStorage.getItem("seasonData") || "[]");
+    const blob = new Blob([JSON.stringify(saved, null, 2)], { type: "application/json" });
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "overwatch_stats.json";
+    link.click();
+});
+
+document.getElementById("importData").addEventListener("click", () => {
+    document.getElementById("importFile").click();
+});
+
+document.getElementById("importFile").addEventListener("change", function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const imported = JSON.parse(e.target.result);
+            if (!Array.isArray(imported)) return alert("El archivo no es válido.");
+
+            localStorage.setItem("seasonData", JSON.stringify(imported));
+            data = [...imported];
+
+            renderTable();
+            updateStatsVisibility();
+            alert("Datos importados correctamente.");
+
+        } catch {
+            alert("Error al leer el archivo.");
+        }
+
+        document.getElementById("importFile").value = "";
+        renderSingleChart();
+    };
+
+    reader.readAsText(file);
+});
+
+
+// GRAPHICS (CHART JS)
+let mainChart = null;
+
+function fmt(n, digits = 3) {
+    const num = Number(n);
+
+    if (isNaN(num) || !isFinite(num)) return "0,00";
+
+    let parts = num.toFixed(digits).split(".");
+    let integerPart = parts[0];
+    let decimalPart = parts[1];
+
+    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+    return integerPart + "," + decimalPart;
+}
+
+
+function renderSingleChart() {
+    const sel = document.getElementById("chartSelector").value;
+
+    const seasons = data.map(d => d.season);
+
+    const datasets = {
+        kda: { label: "KDA", values: data.map(d => d.kda) },
+        winrate: { label: "WinRate (%)", values: data.map(d => d.winrate ?? 0) },
+        hpm: { label: "HPM", values: data.map(d => d.hpm) },
+        dpm: { label: "DPM", values: data.map(d => d.dpm) }
+    };
+
+    const selected = datasets[sel];
+    if (mainChart) mainChart.destroy();
+
+    const isWinRate = sel === "winrate";
+    const labelColor = getComputedStyle(document.body).getPropertyValue("--color-text").trim();
+
+    const colors = selected.values.map((val, i) => {
+        if (i === 0)
+            return getComputedStyle(document.body).getPropertyValue("--color-text-secondary").trim();
+
+        const prev = selected.values[i - 1];
+        return val > prev ? "#6fdf6f" : val < prev ? "#eb5e59" : "#d6d6d6";
+    });
+
+    const annotationPlugin = {
+        id: "annotationPlugin",
+        afterDatasetsDraw(chart) {
+            const ctx = chart.ctx;
+            const dataset = chart.data.datasets[0].data;
+            const meta = chart.getDatasetMeta(0);
+
+            meta.data.forEach((point, i) => {
+                ctx.save();
+                ctx.textAlign = "center";
+                ctx.font = "13px sans-serif";
+
+                if (isWinRate) {
+                    if (i > 0) {
+                        const prev = dataset[i - 1];
+                        const curr = dataset[i];
+                        const diff = curr - prev;
+
+                        const arrow = diff > 0 ? "↑" : diff < 0 ? "↓" : "•";
+                        const color = diff > 0 ? "#6fdf6f" : diff < 0 ? "#eb5e59" : "#d6d6d6";
+
+                        ctx.fillStyle = color;
+                        ctx.fillText(`${arrow} ${fmt(Math.abs(diff), 2)}%`, point.x, point.y - 14);
+                    } else {
+                        ctx.fillStyle = labelColor;
+                        ctx.fillText(`${fmt(dataset[i], 2)}%`, point.x, point.y - 14);
+                    }
+                } else {
+                    ctx.fillStyle = labelColor;
+                    ctx.fillText(fmt(dataset[i], 2), point.x, point.y - 14);
+                }
+                ctx.restore();
+            });
+        }
+    };
+
+    mainChart = new Chart(document.getElementById("chartCanvas"), {
+        type: isWinRate ? "line" : "bar",
+        data: {
+            labels: seasons,
+            datasets: [{
+                label: selected.label,
+                data: selected.values,
+                backgroundColor: isWinRate ? undefined : colors,
+                borderColor: isWinRate ? undefined : colors,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    grid: {
+                        color: getComputedStyle(document.body).getPropertyValue("--grid-color").trim()
+                    },
+                    ticks: {
+                        color: labelColor
+                    },
+                    title: {
+                        display: true,
+                        text: "Temporada",
+                        color: labelColor
+                    }
+                },
+                y: {
+                    grid: {
+                        color: getComputedStyle(document.body).getPropertyValue("--grid-color").trim()
+                    },
+                    ticks: {
+                        color: labelColor
+                    },
+                    title: {
+                        display: true,
+                        text: selected.label,
+                        color: labelColor
+                    }
+                }
+            }
+        },
+        plugins: [annotationPlugin]
+    });
+}
+
+document.getElementById("chartSelector").addEventListener("change", renderSingleChart);
+renderSingleChart();
+
+
+// CARD STATUS (COLLAPSE)
+function saveCardState() {
+    const state = {};
+    document.querySelectorAll(".card").forEach((card, i) => {
+        state[i] = card.classList.contains("minimized");
+    });
+    localStorage.setItem("cardsMinimized", JSON.stringify(state));
+}
+
+function loadCardState() {
+    const state = JSON.parse(localStorage.getItem("cardsMinimized") || "{}");
+    document.querySelectorAll(".card").forEach((card, i) => {
+        const h2 = card.querySelector("h2");
+        if (state[i]) {
+            card.classList.add("minimized");
+            h2.textContent = "► " + h2.textContent.replace(/^[▼►]\s*/, "");
+        } else {
+            h2.textContent = "▼ " + h2.textContent.replace(/^[▼►]\s*/, "");
+        }
+    });
+}
+
+document.querySelectorAll(".card h2").forEach(h2 => {
+    h2.style.cursor = "pointer";
+
+    if (!h2.textContent.includes("▼") && !h2.textContent.includes("►")) {
+        h2.textContent = "▼ " + h2.textContent;
+    }
+
+    h2.addEventListener("click", () => {
+        const card = h2.parentElement;
+        card.classList.toggle("minimized");
+
+        if (card.classList.contains("minimized")) {
+            h2.textContent = "► " + h2.textContent.replace(/^[▼►]\s*/, "");
+        } else {
+            h2.textContent = "▼ " + h2.textContent.replace(/^[▼►]\s*/, "");
+        }
+
+        if (localStorage.getItem("allowStorage") === "true") {
+            saveCardState();
+        }
+    });
+});
+
+loadCardState();
+
+
+// FOLDABLE SECTIONS
+document.querySelectorAll(".section-header").forEach(header => {
+    header.addEventListener("click", () => {
+        const content = header.nextElementSibling;
+        content.style.display = content.style.display === "flex" ? "none" : "flex";
+    });
+});
+
+
+// SIMPLE / ADVANCED MODE
+function setSimpleMode() {
+    simpleBtn.classList.add("active");
+    advBtn.classList.remove("active");
+    document.querySelectorAll(".col-adv").forEach(el => el.classList.add("hide"));
+}
+
+function setAdvancedMode() {
+    advBtn.classList.add("active");
+    simpleBtn.classList.remove("active");
+    document.querySelectorAll(".col-adv").forEach(el => el.classList.remove("hide"));
+}
+
+simpleBtn.addEventListener("click", setSimpleMode);
+advBtn.addEventListener("click", setAdvancedMode);
+setSimpleMode();
+
+
+// MENU SECTIONS
+function updateActiveMenu() {
+    const hash = window.location.hash.replace("#", "");
+
+    document.querySelectorAll(".menu-btn").forEach(btn => {
+        const section = btn.dataset.section;
+        btn.classList.toggle("active", section === hash);
+    });
+}
+
+document.querySelectorAll(".menu-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        setTimeout(updateActiveMenu, 10);
+    });
+});
+
+updateActiveMenu();
+window.addEventListener("hashchange", updateActiveMenu);
