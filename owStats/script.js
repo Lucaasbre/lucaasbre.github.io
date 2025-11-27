@@ -541,7 +541,6 @@ toggleButton.addEventListener('click', () => {
     renderSingleChart();
 });
 
-
 // EXPORT PNG/PDF
 
 document.getElementById("shareTable").addEventListener("click", () => {
@@ -578,12 +577,29 @@ urlPara.style.fontSize = "12px";
 urlPara.style.opacity = "0.7";
 urlPara.style.marginTop = "10px";
 
-function exportPNG(buttonShare, childOfCard, filename) {
-    const card = document.querySelector(childOfCard).parentElement;
-    buttonShare.style.display = "none";
-    card.appendChild(urlPara);
+function exportPNG(buttonShare, selector, filename) {
+    const original = document.querySelector(selector);
 
-    html2canvas(card, { scale: 2, backgroundColor: null })
+    buttonShare.style.display = "none";
+    if (urlPara) original.appendChild(urlPara);
+
+    const clone = original.cloneNode(true);
+    clone.style.width = original.offsetWidth + "px";
+    clone.style.position = "absolute";
+    clone.style.left = "-9999px";
+    clone.style.top = "0";
+
+    document.body.appendChild(clone);
+
+    const originalCanvas = original.querySelector("canvas");
+    const clonedCanvas = clone.querySelector("canvas");
+    if (originalCanvas && clonedCanvas) {
+        clonedCanvas.width = originalCanvas.width;
+        clonedCanvas.height = originalCanvas.height;
+        copyCanvasContent(originalCanvas, clonedCanvas);
+    }
+
+    html2canvas(clone, { scale: 2, backgroundColor: null })
         .then(canvas => {
             const link = document.createElement("a");
             link.download = filename + ".png";
@@ -591,47 +607,62 @@ function exportPNG(buttonShare, childOfCard, filename) {
             link.click();
         })
         .finally(() => {
-            urlPara.remove();
+            clone.remove();
+            if (urlPara) urlPara.remove();
             buttonShare.style.display = "block";
         });
 }
 
-function exportPDF(buttonShare, childOfCard, filename) {
-    const card = document.querySelector(childOfCard).parentElement;
+function copyCanvasContent(originalCanvas, clonedCanvas) {
+    const ctx = clonedCanvas.getContext("2d");
+    ctx.drawImage(originalCanvas, 0, 0);
+}
+
+function exportPDF(buttonShare, selector, filename) {
+    const original = document.querySelector(selector);
+
     buttonShare.style.display = "none";
-    card.appendChild(urlPara);
+    urlPara && original.appendChild(urlPara);
 
-    html2canvas(card, { scale: 2, backgroundColor: null })
-        .then(canvas => {
-            const imgData = canvas.toDataURL("image/png");
-            const pdf = new jspdf.jsPDF("p", "mm", "a4");
+    const clone = original.cloneNode(true);
+    clone.style.width = original.offsetWidth + "px";
+    clone.style.maxWidth = "none";
+    clone.style.overflow = "visible";
+    clone.style.position = "absolute";
+    clone.style.top = "-9999px";
 
-            const width = 190;
-            const ratio = canvas.height / canvas.width;
-            const height = width * ratio;
+    document.body.appendChild(clone);
 
-            pdf.addImage(imgData, "PNG", 10, 10, width, height);
-            pdf.save(filename + ".pdf");
-        })
-        .finally(() => {
-            urlPara.remove();
-            buttonShare.style.display = "block";
-        });
+    html2canvas(clone, { scale: 2, backgroundColor: null }).then(canvas => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jspdf.jsPDF("p", "mm", "a4");
+
+        const pageWidth = 190;
+        const ratio = canvas.height / canvas.width;
+        const pageHeight = pageWidth * ratio;
+
+        pdf.addImage(imgData, "PNG", 10, 10, pageWidth, pageHeight);
+        pdf.save(filename + ".pdf");
+    }).finally(() => {
+        clone.remove();
+        urlPara && urlPara.remove();
+        buttonShare.style.display = "block";
+    });
 }
 
-document.getElementById("exportTablePNG").addEventListener("click", () => exportPNG(btnShareTable, "#stats"));
-document.getElementById("exportTablePDF").addEventListener("click", () => exportPDF(btnShareTable, "#stats"));
+document.getElementById("exportTablePNG").addEventListener("click", () => exportPNG(btnShareTable, "#stats", "overwatch-stats"));
+document.getElementById("exportTablePDF").addEventListener("click", () => exportPDF(btnShareTable, "#stats", "overwatch-stats"));
 document.getElementById("exportGraphicsPNG").addEventListener("click", () => {
     const sel = document.getElementById("chartSelector").value;
     const datasets = { kda: "KDA", winrate: "WinRate", hpm: "HPM", dpm: "DPM" };
-    exportPNG(btnShareGraphics, "#chartsContainer", datasets[sel]);
+    exportPNG(btnShareGraphics, "#graphics", datasets[sel]);
 });
+
 document.getElementById("exportGraphicsPDF").addEventListener("click", () => {
     const sel = document.getElementById("chartSelector").value;
     const datasets = { kda: "KDA", winrate: "WinRate", hpm: "HPM", dpm: "DPM" };
-    exportPDF(btnShareGraphics, "#chartsContainer", datasets[sel]);
+    exportPDF(btnShareGraphics, "#graphics", datasets[sel]);
 });
-
 
 // IMPORT/EXPORT JSON
 document.getElementById("exportData").addEventListener("click", () => {
@@ -900,3 +931,4 @@ document.querySelectorAll(".menu-btn").forEach(btn => {
 
 updateActiveMenu();
 window.addEventListener("hashchange", updateActiveMenu);
+
