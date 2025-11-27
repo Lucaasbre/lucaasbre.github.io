@@ -1,12 +1,15 @@
 :root {
     --color-text: #222;
     --color-text-secondary: #929292;
-    --background: #eee;
-    --border: 2px solid #ccc;
+    --background: #ddd;
+    --border: 2px solid #b9b9b9;
+    --border-color: #b9b9b9;
     --card: #fff;
     --orange: #ffaa22;
     --orange-hover: #ff8c00;
     --background-li: rgba(34, 34, 34, 0.06);
+    --grid-color: #ccc;
+    --border-grid-color: #999;
 }
 
 [data-theme="dark"] {
@@ -14,10 +17,13 @@
     --color-text-secondary: #929292;
     --background: #222;
     --border: 2px solid #434343;
+    --border-color: #434343;
     --card: #333;
     --orange: #ff8c00;
     --orange-hover: #ffaa22;
     --background-li: rgba(255, 255, 255, 0.06);
+    --grid-color: #4e4e4e;
+    --border-grid-color: #444444;
 }
 
 * {
@@ -56,7 +62,9 @@ header h1 {
     border-radius: 14px;
     border: var(--border);
     box-shadow: 0 0 15px rgba(255, 159, 0, 0.25);
-    transition: 0.3s;
+    transition: all 0.3s;
+    overflow: hidden;
+    scroll-margin-top: 90px;
 }
 
 .card:hover {
@@ -66,10 +74,15 @@ header h1 {
 
 .card h2 {
     font-size: 1.9rem;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     color: var(--color-text);
     border-left: 6px solid var(--orange);
     padding-left: 10px;
+}
+
+
+.card.minimized {
+    max-height: 95px;
 }
 
 /* form */
@@ -86,6 +99,8 @@ input {
     border: var(--border);
     outline: none;
     width: 100%;
+    background: #fff;
+    color: #222;
 }
 
 input:focus {
@@ -108,10 +123,22 @@ button:hover {
     background: var(--orange-hover);
 }
 
+.buttons-float-container {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 70;
+}
+
+.fa-file-export,
+.fa-file-import {
+    font-size: 1.5rem;
+}
+
 .btn {
-    margin-top: 20px;
+    margin-top: 10px;
     padding: 12px 20px;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     background: var(--orange);
     border: none;
     color: #222;
@@ -137,12 +164,32 @@ button:hover {
 }
 
 .btn-primary {
-    background: #caffca;
+    background: #6fdf6f;
     color: var(--background);
 }
 
 .btn-primary:hover {
     background-color: #a6f3a6;
+    color: var(--background);
+}
+
+.btn-blue {
+    background: #0052CC;
+    color: var(--background);
+}
+
+.btn-blue:hover {
+    background-color: #329cda;
+    color: var(--background);
+}
+
+.btn-orange {
+    background: #eca239;
+    color: var(--background);
+}
+
+.btn-orange:hover {
+    background-color: #e79521;
     color: var(--background);
 }
 
@@ -173,6 +220,65 @@ button:hover {
 
 .unit-buttons button.active {
     background: var(--orange-hover);
+}
+
+.section {
+    background: var(--background);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    border: var(--border);
+}
+
+.section-header {
+    padding: 12px;
+    cursor: pointer;
+    background: var(--background);
+    font-weight: bold;
+    transition: background .2s;
+}
+
+.section-header:hover {
+    background: var(--card);
+}
+
+.section-content {
+    display: none;
+    padding: 12px;
+    animation: fadeIn 0.3s;
+    gap: 10px;
+}
+
+.open {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+select {
+    width: 100%;
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--color-text);
+    font-size: 1.1rem;
+    border: var(--border);
+    padding: 12px;
+    outline: none;
+    background: #fff;
+    color: #222;
+}
+
+.time-row {
+    display: flex;
+    gap: 10px;
 }
 
 /* table */
@@ -226,7 +332,7 @@ footer {
 }
 
 /* popup */
-#popup {
+.popup {
     position: fixed;
     top: 0;
     left: 0;
@@ -239,7 +345,7 @@ footer {
     z-index: 1000;
 }
 
-#popupBox {
+.popupBox {
     background: #222;
     padding: 25px;
     border-radius: 10px;
@@ -251,11 +357,11 @@ footer {
     gap: 10px;
 }
 
-#popupBox h3 {
+.popupBox h3 {
     color: #caffca;
 }
 
-#popupBox p {
+.popupBox p {
     color: #eee;
 }
 
@@ -312,7 +418,7 @@ ul li {
 }
 
 .blue {
-    color: #48b1ee;
+    color: #0052CC;
     font-weight: 600;
 }
 
@@ -352,7 +458,7 @@ table tbody .worst-wr {
 .t {
     position: relative;
     cursor: help;
-    color: #48b1ee;
+    color: #38a8e9;
     font-weight: 600;
 }
 
@@ -395,11 +501,11 @@ table tbody .worst-wr {
 }
 
 .btn-delete {
-    background: #d9534f;
+    background: #eb5e59;
 }
 
 .btn-delete:hover {
-    background: #c9302c;
+    background: #e6504b;
 }
 
 .form-buttons {
@@ -407,20 +513,111 @@ table tbody .worst-wr {
     gap: 10px;
 }
 
-.theme-button {
-    position: fixed;
-    top: 15px;
-    right: 15px;
+.btn-float {
     padding: 8px 12px;
     background-color: var(--card);
     border: var(--border);
     border-radius: 6px;
     cursor: pointer;
-    font-size: 18px;
+    color: var(--color-text);
+    font-size: 1.5rem;
     transition: background-color 0.3s;
 }
 
-.theme-button:hover {
+.btn-float:hover {
     background-color: var(--orange);
+    color: var(--color-text);
+}
+
+.export-buttons {
+    display: flex;
+    flex-direction: column;
+}
+
+.export-buttons button {
+    width: 100%;
+}
+
+.chart-box {
+    margin: 20px 0;
+    padding: 15px;
+    background: var(--card-bg);
+    border-radius: 10px;
+}
+
+#chartsContainer {
+    margin-top: 15px;
+    padding: 20px;
+    background: var(--card-bg);
+    border-radius: 12px;
+}
+
+.table-mode-switch {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.table-mode-switch button {
+    padding: 8px 14px;
+    background: var(--background);
+    color: var(--color-text);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.table-mode-switch button.active {
+    background: #0052CC;
+    border-color: #0052CC;
     color: #fff;
+}
+
+.table-mode-switch button:hover {
+    background: var(--background);
+    border: 1px solid #0052CC;
+    color: var(--color-text);
+}
+
+.hide {
+    display: none !important;
+}
+
+.top-menu {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    padding: 12px 15px;
+    z-index: 70;
+    justify-content: center;
+}
+
+.menu-btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    background: var(--background);
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background 0.25s, transform 0.15s;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+}
+
+.menu-btn:hover {
+    background: var(--card);
+    border: 1px solid #0052CC;
+}
+
+.menu-btn.active {
+    background: #0052CC;
+    color: #fff;
+    font-weight: 600;
+    border-color: #0052CC;
+    transform: none;
 }
