@@ -6,8 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Overwatch 2 - Support Stats</title>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1"></script>
 </head>
 
 <body>
@@ -16,9 +22,17 @@
     </header>
 
     <main>
-        <button id="theme-toggle" class="theme-button">🌙</button>
-        <div id="popup">
-            <div id="popupBox">
+        <div class="top-menu">
+            <a href="#seasons" class="menu-btn active" data-section="seasons">Temporadas</a>
+            <a href="#graphics" class="menu-btn" data-section="graphics">Gráficos</a>
+            <a href="#stats" class="menu-btn" data-section="stats">Estadísticas</a>
+            <a href="#comparison" class="menu-btn" data-section="comparison">Comparación</a>
+            <a href="#summary" class="menu-btn" data-section="summary">Resumen</a>
+            <a href="#help" class="menu-btn" data-section="help">Ayuda</a>
+        </div>
+
+        <div id="popupSave" class="popup">
+            <div id="popupBox" class="popupBox">
                 <h3>¿Guardar datos?</h3>
                 <div>
                     <p>¿Querés que la web recuerde tus estadísticas?</p>
@@ -31,48 +45,103 @@
             </div>
         </div>
 
-        <section class="card">
+        <div id="popupShareTable" class="popup">
+            <div class="popupBox">
+                <h3>Compartir estadísticas</h3>
+                <div class="export-buttons">
+                    <button id="exportTablePNG" class="btn-orange text-black">Exportar como PNG</button>
+                    <button id="exportTablePDF" class="btn-orange text-black">Exportar como PDF</button>
+                    <button id="closePopupShareTable" class="btn-delete">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="popupShareGraphics" class="popup">
+            <div class="popupBox">
+                <h3>Compartir Gráfica</h3>
+                <div class="export-buttons">
+                    <button id="exportGraphicsPNG" class="btn-orange text-black">Exportar como PNG</button>
+                    <button id="exportGraphicsPDF" class="btn-orange text-black">Exportar como PDF</button>
+                    <button id="closePopupShareGraphics" class="btn-delete">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons-float-container">
+            <button id="exportData" class="btn-float" title="Exportar"><i class="fas fa-file-export"></i></button>
+            <button id="importData" class="btn-float" title="Importar"><i class="fas fa-file-import"></i></button>
+            <button id="theme-toggle" class="btn-float" title="Cambiar Tema"><i class="fas fa-sun"></i></button>
+            <input type="file" id="importFile" accept=".json" style="display: none;">
+        </div>
+
+        <!-- Añadir Temporada -->
+        <section id="seasons" class="card">
             <h2>➕ Añadir Temporada</h2>
 
             <form id="formSeason">
-                <div class="form-grid">
-                    <input type="number" placeholder="Temporada" id="season" required>
 
-                    <input type="number" placeholder="Kills" id="kills" required>
-                    <input type="number" placeholder="Assists" id="assists" required>
-                    <input type="number" placeholder="Deaths" id="deaths" required>
-
-                    <input type="number" placeholder="Partidas Jugadas" id="played">
-                    <input type="number" placeholder="Victorias" id="wins">
-
-                    <input type="number" placeholder="Curación total" id="healing">
-                    <input type="number" placeholder="Daño total" id="damage">
-
-                    <div class="time-input">
-                        <input type="number" placeholder="Tiempo en objetivo" id="timeOnObj">
-                        <div class="unit-buttons" data-target="timeOnObjUnit">
-                            <button type="button" data-unit="h">H</button>
-                            <button type="button" data-unit="m">M</button>
-                            <button type="button" data-unit="s" class="active">S</button>
-                        </div>
-                        <input type="hidden" id="timeOnObjUnit" value="s">
+                <!-- Bloque: Datos generales -->
+                <div class="section">
+                    <div class="section-header">📌 Datos generales</div>
+                    <div class="section-content open">
+                        <input type="number" placeholder="Temporada" id="season" required>
+                        <input type="number" placeholder="Partidas Jugadas" id="played" required>
+                        <input type="number" placeholder="Victorias" id="wins" required>
                     </div>
+                </div>
 
-                    <div class="time-input">
-                        <input type="number" placeholder="Tiempo total" id="totalTime">
-                        <div class="unit-buttons" data-target="totalTimeUnit">
-                            <button type="button" data-unit="h">H</button>
-                            <button type="button" data-unit="m">M</button>
-                            <button type="button" data-unit="s" class="active">S</button>
+                <!-- Bloque: Combate -->
+                <div class="section">
+                    <div class="section-header">⚔️ Combate</div>
+                    <div class="section-content">
+                        <input type="number" placeholder="Eliminaciones" id="kills">
+                        <input type="number" placeholder="Asistencias" id="assists">
+                        <input type="number" placeholder="Muertes" id="deaths">
+                    </div>
+                </div>
+
+                <!-- Bloque: Curación / Daño -->
+                <div class="section">
+                    <div class="section-header">💚 Curación / Daño</div>
+                    <div class="section-content">
+                        <input type="number" placeholder="Curación Total" id="healing">
+                        <input type="number" placeholder="Daño Total" id="damage">
+                    </div>
+                </div>
+
+                <!-- Bloque: Tiempos -->
+                <div class="section">
+                    <div class="section-header">⏱️ Tiempos</div>
+                    <div class="section-content" style="flex-direction: column;">
+                        <label>Tiempo en objetivo</label>
+                        <div class="time-row">
+                            <input type="number" placeholder="Cantidad" id="timeOnObj">
+                            <select id="timeOnObjUnit">
+                                <option value="h">Horas</option>
+                                <option value="m">Minutos</option>
+                                <option value="s">Segundos</option>
+                            </select>
                         </div>
-                        <input type="hidden" id="totalTimeUnit" value="s">
+
+                        <label>Tiempo total jugado</label>
+                        <div class="time-row">
+                            <input type="number" placeholder="Cantidad" id="totalTime">
+                            <select id="totalTimeUnit">
+                                <option value="h">Horas</option>
+                                <option value="m">Minutos</option>
+                                <option value="s">Segundos</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-buttons">
-                    <button type="button" id="deleteBtn" class="btn btn-delete" style="display:none;">Eliminar
+                    <button type="button" id="deleteBtn" class="btn-delete"
+                        style="display: none; width: 100%; margin-top: 10px; padding: 12px 20px; font-size: 1.1rem; border-radius: 10px; transition: 0.3s;">Eliminar
                         Temporada</button>
-                    <button type="submit" id="saveBtn" class="btn">Agregar Temporada</button>
+                    <button type="submit" id="saveBtn" class="btn-primary text-black"
+                        style="width: 100%; margin-top: 10px; padding: 12px 20px; font-size: 1.1rem; border-radius: 10px; transition: 0.3s;">Agregar
+                        Temporada</button>
                 </div>
             </form>
             <button class="btn-secondary" id="tutorial">
@@ -92,107 +161,145 @@
             </div>
         </section>
 
-        <section class="card">
+        <!-- Gráficos -->
+        <section id="graphics" class="card">
+            <h2>📊 Gráficos</h2>
+
+            <label for="chartSelector"><strong>Ver indicador:</strong></label>
+            <select id="chartSelector">
+                <option value="winrate">WinRate</option>
+                <option value="kda">KDA</option>
+                <option value="hpm">HPM (Healing Per Minute)</option>
+                <option value="dpm">DPM (Damage Per Minute)</option>
+            </select>
+
+            <div id="chartsContainer">
+                <canvas id="chartCanvas"></canvas>
+            </div>
+            <button id="shareGraphics" class="btn-primary text-black">Compartir</button>
+        </section>
+
+        <!-- Estadísticas por Temporada -->
+        <section id="stats" class="card">
             <h2>📊 Estadísticas por Temporada</h2>
-            <table id="statsTable">
-                <thead>
-                    <tr>
-                        <th>Editar</th>
-                        <th>Temporada</th>
-                        <th>KDA</th>
-                        <th>Win Rate (%)</th>
-                        <th>HPM</th>
-                        <th>DPM</th>
-                        <th>Curación/Daño</th>
-                        <th>Impacto</th>
-                        <th>Objetivo (%)</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-            <p class="simple-note">
-                <strong>Nota:</strong>
-                La fila con <span class="green">fondo verde</span> es tu <strong>mejor temporada</strong> y la fila con
-                <span class="red">fondo rojo</span> es tu <strong>peor temporada</strong>.
-                El <span class="green">borde verde</span> marca la mejor WinRate y el <span class="red">borde
-                    rojo</span> marca la peor
-                WinRate.
-            </p>
+            <p id="noSeasons">Aún no hay temporadas añadidas.</p>
+            <div id="stats-containers">
+                <div class="table-mode-switch">
+                    <button id="modeSimple" class="active">Modo simple</button>
+                    <button id="modeAdvanced">Modo avanzado</button>
+                </div>
+
+                <table id="statsTable">
+                    <thead>
+                        <tr>
+                            <th>Editar</th>
+                            <th>Temporada</th>
+                            <th>KDA</th>
+                            <th>Win Rate (%)</th>
+                            <th class="col-adv">HPM</th>
+                            <th class="col-adv">DPM</th>
+                            <th class="col-adv">Curación/Daño</th>
+                            <th class="col-adv">Impacto</th>
+                            <th>Objetivo (%)</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="statsBody">
+                        <!-- tu contenido dinámico va aquí -->
+                    </tbody>
+                </table>
+                <p class="simple-note">
+                    <strong>Nota:</strong>
+                    La fila con <span class="green">fondo verde</span> es tu <strong>mejor temporada</strong> y la fila
+                    con
+                    <span class="red">fondo rojo</span> es tu <strong>peor temporada</strong>.
+                    El <span class="green">borde verde</span> marca la mejor WinRate y el <span class="red">borde
+                        rojo</span> marca la peor
+                    WinRate.
+                </p>
+                <button id="shareTable" class="btn-primary text-black">Compartir</button>
+            </div>
         </section>
 
-        <section class="card" id="comparison">
-            <h2>📈 Comparación con temporadas anteriores</h2>
-            <div id="comparisonText">Aún no hay suficientes datos para comparar.</div>
-        </section>
-
+        <!-- Resumen -->
         <section class="card" id="summary">
             <h2>Resumen</h2>
             <p>Aún no hay temporadas añadidas.</p>
         </section>
 
-        <section class="card">
+        <!-- Comparación con temporadas anteriores -->
+        <section class="card" id="comparison">
+            <h2>📈 Comparación con temporadas anteriores</h2>
+            <div id="comparisonText">Aún no hay suficientes datos para comparar.</div>
+        </section>
+
+        <!-- ¿Qué significa cada estadística? -->
+        <section id="help" class="card">
             <h2>📘 ¿Qué significa cada estadística?</h2>
 
             <table class="stats-table" border="1" cellpadding="8" cellspacing="0">
-            <thead>
-                <tr>
-                    <th>Estadística</th>
-                    <th>Fórmula / Descripción</th>
-                    <th>Interpretación</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>KDA</strong></td>
-                    <td>(Kills + Assists) / Deaths</td>
-                    <td>Un valor <span class="green">alto es bueno</span></td>
-                </tr>
-                <tr>
-                    <td><strong>Win Rate</strong></td>
-                    <td>(Victorias / Partidas Jugadas) × 100</td>
-                    <td>Cuanto <span class="green">más alto, mejor</span></td>
-                </tr>
-                <tr>
-                    <td><strong>HPM</strong></td>
-                    <td>Curación por minuto</td>
-                    <td>Un valor <span class="green">alto es muy bueno</span> para supports</td>
-                </tr>
-                <tr>
-                    <td><strong>DPM</strong></td>
-                    <td>Daño por minuto</td>
-                    <td><span class="green">Alto es bueno</span>, depende del héroe</td>
-                </tr>
-                <tr>
-                    <td><strong>Curación/Daño</strong></td>
-                    <td>Relación entre curación y daño</td>
-                    <td><span class="orange">Más alto = más orientado a curar; más bajo = más orientado al daño</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td><strong>Impacto</strong></td>
-                    <td>(Curación/1000 + Asistencias) / Muertes</td>
-                    <td>Un <span class="green">valor alto</span> indica excelente presencia sin morir</td>
-                </tr>
-                <tr>
-                    <td rowspan="2"><strong>Objetivo (%)</strong></td>
-                    <td>Tiempo en objetivo respecto del total</td>
-                    
-                    <td>
-                        <ul>
-                            <li><strong>Backline</strong> (Ana, Mercy, Baptiste, Illari): % medio o bajo es normal. Muy
-                                alto = <span class="red">demasiado adelante</span></li>
-                            <li><strong>Melee / Objetivo</strong> (Lucio, Brig): % alto es correcto. Muy bajo = <span
-                                    class="red">demasiado lejos del punto</span></li>
-                        </ul>
-                    </td>
-                </tr>
-            </tbody>
+                <thead>
+                    <tr>
+                        <th>Estadística</th>
+                        <th>Fórmula / Descripción</th>
+                        <th>Interpretación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>KDA</strong></td>
+                        <td>(Kills + Assists) / Deaths (Eliminaciones y Asistencias por Muerte)</td>
+                        <td>Un valor <span class="green">alto es bueno</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Win Rate</strong></td>
+                        <td>(Victorias / Partidas Jugadas) × 100 (Porcentaje de Victorias)</td>
+                        <td>Cuanto <span class="green">más alto, mejor</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>HPM</strong></td>
+                        <td>Curación por minuto</td>
+                        <td>Un valor <span class="green">alto es muy bueno</span> para supports</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DPM</strong></td>
+                        <td>Daño por minuto</td>
+                        <td><span class="green">Alto es bueno</span>, depende del héroe</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Curación/Daño</strong></td>
+                        <td>Relación entre curación y daño</td>
+                        <td><span class="orange">Más alto = más orientado a curar; más bajo = más orientado al
+                                daño</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Impacto</strong></td>
+                        <td>(Curación/1000 + Asistencias) / Muertes (Curacion y Asistencias por Muerte)</td>
+                        <td>Un <span class="green">valor alto</span> indica excelente presencia sin morir</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2"><strong>Objetivo (%)</strong></td>
+                        <td>Tiempo en objetivo respecto del total</td>
+
+                        <td>
+                            <ul>
+                                <li><strong>Backline</strong> (Ana, Mercy, Baptiste, Illari): % medio o bajo es normal.
+                                    Muy
+                                    alto = <span class="red">demasiado adelante</span></li>
+                                <li><strong>Melee / Objetivo</strong> (Lucio, Brig): % alto es correcto. Muy bajo =
+                                    <span class="red">demasiado lejos del punto</span>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </section>
     </main>
 
     <footer>
-        <p>Overwatch 2 Support Stats • Creado por <a href="https://lucaasbre.github.io" target="_blank">@Lucaasbre</a>
+        <p>Overwatch 2 Support Stats • Creado por <a href="https://lucaasbre.github.io" target="_blank" style="color: #0052CC;">@Lucaasbre</a>
         </p>
     </footer>
 
