@@ -107,7 +107,7 @@ function renderTable() {
 
     sortedData.forEach(d => {
         let rowClass = "";
-        
+
         if (d === bestKDA) rowClass += " best-kda ";
         if (d === worstKDA) rowClass += " worst-kda ";
         if (d === bestWR) rowClass += " best-wr ";
@@ -577,11 +577,52 @@ urlPara.style.fontSize = "12px";
 urlPara.style.opacity = "0.7";
 urlPara.style.marginTop = "10px";
 
+function hideEditColumn() {
+    document.querySelectorAll(".edit-btn").forEach(btn => {
+        btn.style.display = "none";
+    });
+
+    document.querySelectorAll("td:first-child, th:first-child").forEach(col => {
+        col.style.display = "none";
+    });
+}
+
+function showEditColumn() {
+    document.querySelectorAll(".edit-btn").forEach(btn => {
+        btn.style.display = "inline-block";
+    });
+
+    document.querySelectorAll("td:first-child, th:first-child").forEach(col => {
+        col.style.display = "";
+    });
+}
+
+function showChartTitleForExport() {
+    const sel = document.getElementById("chartSelector").value;
+    const datasets = { kda: "KDA", winrate: "WinRate", hpm: "HPM", dpm: "DPM" };
+    const title = datasets[sel] || "Chart";
+
+    document.getElementById("chartSelectorLabel").style.display = "none";
+    document.getElementById("chartSelector").style.display = "none";
+
+    const h3 = document.getElementById("chartTitleExport");
+    h3.innerText = title;
+    h3.style.display = "block";
+}
+
+function restoreChartTitle() {
+    document.getElementById("chartSelectorLabel").style.display = "block";
+    document.getElementById("chartSelector").style.display = "block";
+    document.getElementById("chartTitleExport").style.display = "none";
+}
+
 function exportPNG(buttonShare, selector, filename) {
     const original = document.querySelector(selector);
 
     buttonShare.style.display = "none";
     if (urlPara) original.appendChild(urlPara);
+
+    hideEditColumn();
 
     const clone = original.cloneNode(true);
     clone.style.width = original.offsetWidth + "px";
@@ -609,6 +650,7 @@ function exportPNG(buttonShare, selector, filename) {
         .finally(() => {
             clone.remove();
             if (urlPara) urlPara.remove();
+            showEditColumn();
             buttonShare.style.display = "block";
         });
 }
@@ -618,12 +660,13 @@ function copyCanvasContent(originalCanvas, clonedCanvas) {
     ctx.drawImage(originalCanvas, 0, 0);
 }
 
-
 function exportPDF(buttonShare, selector, filename) {
     const original = document.querySelector(selector);
 
     buttonShare.style.display = "none";
     urlPara && original.appendChild(urlPara);
+
+    hideEditColumn();
 
     const clone = original.cloneNode(true);
     clone.style.width = original.offsetWidth + "px";
@@ -633,7 +676,7 @@ function exportPDF(buttonShare, selector, filename) {
     clone.style.top = "-9999px";
 
     document.body.appendChild(clone);
-    
+
     const originalCanvas = original.querySelector("canvas");
     const clonedCanvas = clone.querySelector("canvas");
     if (originalCanvas && clonedCanvas) {
@@ -654,22 +697,64 @@ function exportPDF(buttonShare, selector, filename) {
     }).finally(() => {
         clone.remove();
         urlPara && urlPara.remove();
+        showEditColumn();
         buttonShare.style.display = "block";
     });
 }
 
+async function exportAllChartsPDF() {
+    const metrics = ["winrate", "kda", "hpm", "dpm"];
+    const titles = ["WinRate", "KDA", "HPM", "DPM"];
+    const pdf = new jspdf.jsPDF("p", "mm", "a4");
+
+    let images = [];
+
+    for (let i = 0; i < metrics.length; i++) {
+        const canvas = document.createElement("canvas");
+        canvas.width = 1200;
+        canvas.height = 600;
+        document.body.appendChild(canvas);
+
+        renderSingleChart(metrics[i], canvas);
+
+        await sleep(200);
+
+        const img = canvas.toDataURL("image/png");
+        images.push(img);
+
+        canvas.remove();
+    }
+
+    for (let i = 0; i < images.length; i++) {
+        if (i > 0 && i % 2 === 0) pdf.addPage();
+
+        const y = (i % 2 === 0) ? 10 : 150;
+
+        pdf.setFontSize(18);
+        pdf.text(titles[i], 10, y - 2);
+        pdf.addImage(images[i], "PNG", 10, y, 190, 130);
+    }
+
+    pdf.save("All_Charts.pdf");
+}
+
+function sleep(ms) {
+    return new Promise(res => setTimeout(res, ms));
+}
+
 document.getElementById("exportTablePNG").addEventListener("click", () => exportPNG(btnShareTable, "#stats", "overwatch-stats"));
 document.getElementById("exportTablePDF").addEventListener("click", () => exportPDF(btnShareTable, "#stats", "overwatch-stats"));
+
 document.getElementById("exportGraphicsPNG").addEventListener("click", () => {
+    showChartTitleForExport();
     const sel = document.getElementById("chartSelector").value;
     const datasets = { kda: "KDA", winrate: "WinRate", hpm: "HPM", dpm: "DPM" };
     exportPNG(btnShareGraphics, "#graphics", datasets[sel]);
+    setTimeout(restoreChartTitle, 150);
 });
 
 document.getElementById("exportGraphicsPDF").addEventListener("click", () => {
-    const sel = document.getElementById("chartSelector").value;
-    const datasets = { kda: "KDA", winrate: "WinRate", hpm: "HPM", dpm: "DPM" };
-    exportPDF(btnShareGraphics, "#graphics", datasets[sel]);
+    exportAllChartsPDF();
 });
 
 // IMPORT/EXPORT JSON
@@ -733,11 +818,11 @@ function fmt(n, digits = 3) {
     return integerPart + "," + decimalPart;
 }
 
+function renderSingleChart(type = null, targetCanvas = null) {
+    const sel = type || document.getElementById("chartSelector").value;
 
-function renderSingleChart() {
-    const sel = document.getElementById("chartSelector").value;
-
-    const seasons = data.map(d => d.season);
+    const canvas = targetCanvas || document.getElementById("chartCanvas");
+    const ctx = canvas.getContext("2d");
 
     const datasets = {
         kda: { label: "KDA", values: data.map(d => d.kda) },
@@ -747,9 +832,13 @@ function renderSingleChart() {
     };
 
     const selected = datasets[sel];
-    if (mainChart) mainChart.destroy();
-
+    const seasons = data.map(d => d.season);
     const isWinRate = sel === "winrate";
+
+    if (!targetCanvas && mainChart) {
+        mainChart.destroy();
+    }
+
     const labelColor = getComputedStyle(document.body).getPropertyValue("--color-text").trim();
 
     const colors = selected.values.map((val, i) => {
@@ -796,7 +885,20 @@ function renderSingleChart() {
         }
     };
 
-    mainChart = new Chart(document.getElementById("chartCanvas"), {
+    const chartBackgroundPlugin = {
+        id: "chartBackgroundPlugin",
+        beforeDraw(chart) {
+            const ctx = chart.ctx;
+            const { width, height } = chart;
+
+            ctx.save();
+            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue("--card");
+            ctx.fillRect(0, 0, width, height);
+            ctx.restore();
+        }
+    };
+
+    const chart = new Chart(ctx, {
         type: isWinRate ? "line" : "bar",
         data: {
             labels: seasons,
@@ -809,17 +911,13 @@ function renderSingleChart() {
             }]
         },
         options: {
+            animation: false,
             scales: {
                 x: {
                     grid: {
                         color: getComputedStyle(document.body).getPropertyValue("--grid-color").trim()
                     },
                     ticks: {
-                        color: labelColor
-                    },
-                    title: {
-                        display: true,
-                        text: "Temporada",
                         color: labelColor
                     }
                 },
@@ -829,22 +927,19 @@ function renderSingleChart() {
                     },
                     ticks: {
                         color: labelColor
-                    },
-                    title: {
-                        display: true,
-                        text: selected.label,
-                        color: labelColor
                     }
                 }
             }
         },
-        plugins: [annotationPlugin]
+        plugins: [annotationPlugin, chartBackgroundPlugin]
     });
+
+    if (!targetCanvas) mainChart = chart;
+    return chart;
 }
 
-document.getElementById("chartSelector").addEventListener("change", renderSingleChart);
+document.getElementById("chartSelector").addEventListener("change", () => { renderSingleChart(); });
 renderSingleChart();
-
 
 // CARD STATUS (COLLAPSE)
 function saveCardState() {
@@ -939,5 +1034,3 @@ document.querySelectorAll(".menu-btn").forEach(btn => {
 
 updateActiveMenu();
 window.addEventListener("hashchange", updateActiveMenu);
-
-
