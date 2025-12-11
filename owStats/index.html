@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overwatch 2 - Support Stats</title>
+    <title>Overwatch 2 - Stats</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600&display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@
 
 <body>
     <header>
-        <h1>OVERWATCH 2 — SUPPORT STATS</h1>
+        <h1>OVERWATCH 2 — GENERAL STATS</h1>
     </header>
 
     <main>
@@ -84,9 +84,18 @@
                 <div class="section">
                     <div class="section-header">📌 Datos generales</div>
                     <div class="section-content open">
-                        <input type="number" placeholder="Temporada" id="season" required>
-                        <input type="number" placeholder="Partidas Jugadas" id="played" required>
-                        <input type="number" placeholder="Victorias" id="wins" required>
+                        <div style="flex-direction: column; display: flex; width: 100%; gap: 10px;">
+                            <label for="season">Temporada *</label>
+                            <input type="number" placeholder="Temporada" id="season" required>
+                        </div>
+                        <div style="flex-direction: column; display: flex; width: 100%; gap: 10px;">
+                            <label for="played">Partidas Jugadas *</label>
+                            <input type="number" placeholder="Partidas Jugadas" id="played" required>
+                        </div>
+                        <div style="flex-direction: column; display: flex; width: 100%; gap: 10px;">
+                            <label for="wins">Victorias *</label>
+                            <input type="number" placeholder="Victorias" id="wins" required>
+                        </div>
                     </div>
                 </div>
 
@@ -94,9 +103,18 @@
                 <div class="section">
                     <div class="section-header">⚔️ Combate</div>
                     <div class="section-content">
-                        <input type="number" placeholder="Eliminaciones" id="kills">
-                        <input type="number" placeholder="Asistencias" id="assists">
-                        <input type="number" placeholder="Muertes" id="deaths">
+                        <div style="flex-direction: column; display: flex; width: 100%; gap: 10px;">
+                            <label for="kills">Eliminaciones</label>
+                            <input type="number" placeholder="Eliminaciones" id="kills">
+                        </div>
+                        <div style="flex-direction: column; display: flex; width: 100%; gap: 10px;">
+                            <label for="assists">Asistencias</label>
+                            <input type="number" placeholder="Asistencias" id="assists">
+                        </div>
+                        <div style="flex-direction: column; display: flex; width: 100%; gap: 10px;">
+                            <label for="deaths">Muertes</label>
+                            <input type="number" placeholder="Muertes" id="deaths">
+                        </div>
                     </div>
                 </div>
 
@@ -104,8 +122,14 @@
                 <div class="section">
                     <div class="section-header">💚 Curación / Daño</div>
                     <div class="section-content">
-                        <input type="number" placeholder="Curación Total" id="healing">
-                        <input type="number" placeholder="Daño Total" id="damage">
+                        <div style="flex-direction: column; display: flex; width: 100%; gap: 10px;">
+                            <label for="healing">Curación Total</label>
+                            <input type="number" placeholder="Curación Total" id="healing">
+                        </div>
+                        <div style="flex-direction: column; display: flex; width: 100%; gap: 10px;">
+                            <label for="damage">Daño Total</label>
+                            <input type="number" placeholder="Daño Total" id="damage">
+                        </div>
                     </div>
                 </div>
 
@@ -113,20 +137,20 @@
                 <div class="section">
                     <div class="section-header">⏱️ Tiempos</div>
                     <div class="section-content" style="flex-direction: column;">
-                        <label>Tiempo en objetivo</label>
+                        <label for="totalTime">Tiempo total jugado</label>
                         <div class="time-row">
-                            <input type="number" placeholder="Cantidad" id="timeOnObj">
-                            <select id="timeOnObjUnit">
+                            <input type="number" placeholder="Cantidad" id="totalTime">
+                            <select id="totalTimeUnit">
                                 <option value="h">Horas</option>
                                 <option value="m">Minutos</option>
                                 <option value="s">Segundos</option>
                             </select>
                         </div>
 
-                        <label>Tiempo total jugado</label>
+                        <label for="timeOnObj">Tiempo en objetivo</label>
                         <div class="time-row">
-                            <input type="number" placeholder="Cantidad" id="totalTime">
-                            <select id="totalTimeUnit">
+                            <input type="number" placeholder="Cantidad" id="timeOnObj">
+                            <select id="timeOnObjUnit">
                                 <option value="h">Horas</option>
                                 <option value="m">Minutos</option>
                                 <option value="s">Segundos</option>
@@ -145,18 +169,19 @@
                 </div>
             </form>
             <button class="btn-secondary" id="tutorial">
-                ¿No sabes de dónde sacar esta información? Haz clic aquí y te lo explico.
+                ¿No sabés de dónde sacar esta información? Hacé clic acá y te lo explico.
             </button>
 
             <div id="tutorialContent" style="display: none; margin-top: 10px;">
                 <ul>
-                    <li><strong>Paso 1:</strong> En el inicio del juego, dirígete a la parte superior derecha y abre el
-                        menú (o presiona <strong>ESC</strong>).</li>
-                    <li><strong>Paso 2:</strong> Dentro del menú, selecciona <em>"Perfil de carrera"</em>.</li>
-                    <li><strong>Paso 3:</strong> Luego, selecciona la opción <em>"Estadísticas"</em> en la parte
+                    <li><strong>Paso 1:</strong> Al iniciar el juego, dirigite a la esquina superior derecha y abrí el
+                        menú (o presioná <strong>ESC</strong>).</li>
+                    <li><strong>Paso 2:</strong> Dentro del menú, seleccioná <em>"Perfil de carrera"</em>.</li>
+                    <li><strong>Paso 3:</strong> Luego, seleccioná la opción <em>"Estadísticas"</em> en la parte
                         superior.</li>
-                    <li>Allí podrás ver todas las estadísticas que pide la web, y también filtrar por héroe, modo de
-                        juego o temporada.</li>
+                    <li>Ahí vas a encontrar todas las estadísticas que solicita la web. También vas a poder filtrar por
+                        héroe, modo de juego o temporada. Se recomienda seleccionar <em>"Todos los héroes"</em> y luego
+                        comparar con un modo de juego específico, por ejemplo <strong>Competitivo.</strong></li>
                 </ul>
             </div>
         </section>
@@ -164,8 +189,9 @@
         <!-- Gráficos -->
         <section id="graphics" class="card">
             <h2>📊 Gráficos</h2>
-
-            <label for="chartSelector"><strong>Ver indicador:</strong></label>
+            <h3 id="chartTitleExport" style="display: none;text-align: center;font-size: 1.5rem;margin-bottom: 10px;">
+                WinRate</h3>
+            <label for="chartSelector" id="chartSelectorLabel"><strong>Ver indicador:</strong></label>
             <select id="chartSelector">
                 <option value="winrate">WinRate</option>
                 <option value="kda">KDA</option>
@@ -220,16 +246,16 @@
             </div>
         </section>
 
-        <!-- Resumen -->
-        <section class="card" id="summary">
-            <h2>Resumen</h2>
-            <p>Aún no hay temporadas añadidas.</p>
-        </section>
-
         <!-- Comparación con temporadas anteriores -->
         <section class="card" id="comparison">
             <h2>📈 Comparación con temporadas anteriores</h2>
             <div id="comparisonText">Aún no hay suficientes datos para comparar.</div>
+        </section>
+
+        <!-- Resumen -->
+        <section class="card" id="summary">
+            <h2>Resumen</h2>
+            <p>Aún no hay temporadas añadidas.</p>
         </section>
 
         <!-- ¿Qué significa cada estadística? -->
@@ -298,7 +324,8 @@
     </main>
 
     <footer>
-        <p>Overwatch 2 Support Stats • Creado por <a href="https://lucaasbre.github.io" target="_blank" style="color: #0052CC;">@Lucaasbre</a>
+        <p>Overwatch 2 General Stats • Creado por <a href="https://lucaasbre.github.io" target="_blank"
+                style="color: #0052CC;">@Lucaasbre</a>
         </p>
     </footer>
 
@@ -306,4 +333,3 @@
 </body>
 
 </html>
-
