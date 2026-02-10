@@ -148,7 +148,6 @@ nav {
     background: var(--card);
     border: 1px solid var(--stroke2);
     border-radius: var(--radius);
-    box-shadow: var(--shadow);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     overflow: hidden;
@@ -489,3 +488,4 @@ footer {
     height: 5rem;
     filter: drop-shadow(0 20px 40px rgba(0, 0, 0, .6)) drop-shadow(0 0 20px rgba(228, 69, 255, .35));
 }
+
