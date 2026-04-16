@@ -6,7 +6,9 @@
     <title>Twitch Chat Overlay</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Barriecito&family=Fruktur:ital@0;1&family=Germania+One&family=Macondo&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barriecito&family=Fruktur:ital@0;1&family=Germania+One&family=Macondo&display=swap"
+        rel="stylesheet">
 
 
     <style>
@@ -147,7 +149,7 @@
         }
 
         form {
-            width: 340px;
+            width: 440px;
             padding: 20px;
             background: #18181b;
             border: 1px solid #2a2a2e;
@@ -283,6 +285,24 @@
         .switch input:checked+.slider:before {
             transform: translateX(22px);
         }
+
+        .obs-help {
+            margin-top: 20px;
+            padding: 12px 16px;
+            background: #111;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .obs-help ol {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .obs-help h4 {
+            margin-top: 0;
+        }
     </style>
 </head>
 
@@ -302,7 +322,7 @@
                     viejos</span>
                 <input name="maxMessages" type="number" value="150" placeholder="150">
                 <label>Tiempo de vida del mensaje</label>
-                <span style="color: #b9b9c0; font-style: italic; font-size: 13px;">al finaliza ese tiempo de vida el
+                <span style="color: #b9b9c0; font-style: italic; font-size: 13px;">al finalizar ese tiempo de vida el
                     mensaje
                     desaparece, 0 evita que desaparezca</span>
                 <input name="messageLifetime" type="number" value="0" placeholder="0">
@@ -318,7 +338,8 @@
                 <select name="fontFamily">
                     <option value="sans-serif" style="font-family: sans-serif;">Sans Serif (predeterminada)</option>
                     <option value="Macondo" style="font-family: Macondo;">Macondo</option>
-                    <option value="'Times New Roman', Times, serif" style="font-family: 'Times New Roman', Times, serif;">Times New Roman</option>
+                    <option value="'Times New Roman', Times, serif"
+                        style="font-family: 'Times New Roman', Times, serif;">Times New Roman</option>
                     <option value="Monospace" style="font-family: monospace;">Monospace</option>
                     <option value="'Comic Sans MS'" style="font-family: 'Comic Sans MS';">Comic Sans MS</option>
                     <option value="Germania One" style="font-family: Germania One;">Germania One</option>
@@ -340,6 +361,17 @@
                 <button type="button" onclick="generateURL()">Generar URL</button>
                 <div id="result"></div>
                 <button type="button" onclick="copyURL(this)">Copiar al portapapeles</button>
+                <div class="obs-help">
+                    <h4>Cómo usarlo en OBS</h4>
+                    <ol>
+                        <li>Configurá el overlay y hacé click en <b>Generar URL</b>.</li>
+                        <li>Presioná <b>Copiar al portapapeles</b>.</li>
+                        <li>En <b>OBS</b> agregá una fuente -> <b>Navegador (Browser Source)</b>.</li>
+                        <li>Pegá la URL en el campo <b>URL</b>.</li>
+                        <li>Asegurate de que <b>“Archivo local” NO esté marcado</b>.</li>
+                        <li>Listo! el chat debería aparecer en el overlay.</li>
+                    </ol>
+                </div>
             </div>
         </form>
         <div id="preview">
