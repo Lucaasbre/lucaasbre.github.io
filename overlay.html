@@ -19,7 +19,7 @@
         }
 
         body {
-            background: transparent;
+            background: black;
             font-family: sans-serif;
             overflow-y: hidden;
         }
@@ -94,7 +94,7 @@
 
         .text {
             width: 60%;
-            display: flex;
+            display: table;
             gap: 0;
             word-break: break-word;
             overflow-x: hidden;
@@ -471,6 +471,7 @@
         let twitchChannelBadges = {};
 
         let ffzData = null;
+        let ffzEmotes = {};
         let channelId = null;
 
         const defaultConfig = {
@@ -517,8 +518,6 @@
         let fontFamily = config.fontFamily;
         let ignoredUsers = config.ignoredUsers;
         let chatAlignment = config.chatAlignment;
-
-        console.log(config);
 
         const chat = document.getElementById("chat");
 
@@ -744,14 +743,31 @@
         async function loadFFZ() {
             try {
                 const res = await fetch("https://api.frankerfacez.com/v1/room/" + channel.toLowerCase());
+
                 if (!res.ok) {
                     console.warn("FFZ no disponible para este canal");
                     ffzData = null;
                     return;
                 }
+
                 ffzData = await res.json();
-                console.log(ffzData)
+
+                if (ffzData && ffzData.sets) {
+                    const set = Object.values(ffzData.sets)[0];
+                    if (set && set.emoticons) {
+                        set.emoticons.forEach(emote => {
+                            const url = emote.animated ? emote.animated["2"] : emote.urls["2"];
+                            ffzEmotes[emote.name] = url;
+                        });
+                    } else {
+                        console.warn("No se encontraron emotes en este set");
+                    }
+                } else {
+                    console.warn("Datos de FFZ no disponibles o mal estructurados");
+                }
+
             } catch (e) {
+                console.warn("Error al cargar los emotes de FFZ:", e);
                 ffzData = null;
             }
         }
@@ -827,43 +843,67 @@
         }
 
         /**
-         * Renderiza el mensaje con los emotes. Reemplaza los emotes por imágenes.
+         * Renderiza un mensaje reemplazando los emotes por imágenes.
+         * 
+         * Analiza los emotes de Twitch y FFZ, y devuelve nodos DOM con texto e imágenes de los emotes.
+         *
          * @function renderMessageWithEmotes
          * @param {string} message - El mensaje a renderizar.
-         * @param {string} emoteTag - Los emotes que deben ser reemplazados por imágenes.
-         * @returns {Node[]} Un arreglo de nodos de texto e imágenes de los emotes.
+         * @param {string|null} emoteTag - Cadena con las posiciones de los emotes de Twitch.
+         * @returns {Node[]} Arreglo de nodos DOM (texto e imágenes).
          */
-        function renderMessageWithEmotes(message, emoteTag) {
-            if (!emoteTag) return [document.createTextNode(message)];
-
+        function renderMessageWithEmotes(message, emoteTag, ffzEmotes) {
             const parts = [];
             const emotes = [];
 
-            emoteTag.split("/").forEach(e => {
-                const [id, positions] = e.split(":");
-                positions.split(",").forEach(p => {
-                    const [start, end] = p.split("-").map(Number);
-                    emotes.push({ id, start, end });
+            if (ffzEmotes && Object.keys(ffzEmotes).length > 0) {
+                const emotePatternFFZ = new RegExp(Object.keys(ffzEmotes).join("|"), "g");
+                let match;
+                while ((match = emotePatternFFZ.exec(message)) !== null) {
+                    emotes.push({ name: match[0], start: match.index, end: emotePatternFFZ.lastIndex - 1 });
+                }
+            }
+
+            if (emoteTag) {
+                emoteTag.split("/").forEach(e => {
+                    const [id, positions] = e.split(":");
+                    positions.split(",").forEach(p => {
+                        const [start, end] = p.split("-").map(Number);
+                        emotes.push({ id, start, end });
+                    });
                 });
-            });
+            }
 
             emotes.sort((a, b) => a.start - b.start);
+
             let lastIndex = 0;
 
             emotes.forEach(e => {
                 if (lastIndex < e.start) {
                     parts.push(document.createTextNode(message.slice(lastIndex, e.start)));
                 }
-                const img = document.createElement("img");
-                img.src = "https://static-cdn.jtvnw.net/emoticons/v2/" + e.id + "/default/dark/2.0";
-                img.className = "emote";
-                parts.push(img);
+
+                if (e.name && ffzEmotes) {
+                    const emoteUrl = ffzEmotes[e.name];
+                    const img = document.createElement("img");
+                    img.src = emoteUrl;
+                    img.className = "emote";
+                    parts.push(img);
+                } else if (e.id) {
+                    const emoteUrl = `https://static-cdn.jtvnw.net/emoticons/v2/${e.id}/default/dark/2.0`;
+                    const img = document.createElement("img");
+                    img.src = emoteUrl;
+                    img.className = "emote";
+                    parts.push(img);
+                }
+
                 lastIndex = e.end + 1;
             });
 
             if (lastIndex < message.length) {
                 parts.push(document.createTextNode(message.slice(lastIndex)));
             }
+
             return parts;
         }
 
@@ -993,7 +1033,7 @@
             userBlock.appendChild(colon);
 
             const message = document.createElement("span");
-            const nodes = renderMessageWithEmotes(text, emotes);
+            const nodes = renderMessageWithEmotes(text, emotes, ffzEmotes);
 
             msg.appendChild(userBlock);
             msg.appendChild(textBlock);
