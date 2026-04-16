@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Twitch Chat Overlay</title>
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            background: black;
+            font-family: sans-serif;
+            color: #fff;
+            overflow-y: hidden;
+        }
+
+        #chat {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            gap: 6px;
+            font-size: 22px;
+            overflow-y: hidden;
+            text-shadow:
+                0 0 2px rgba(0, 0, 0, 0.8),
+                0 0 6px rgba(0, 0, 0, 0.6);
+        }
+
+        .message {
+            height: fit-content;
+            display: flex;
+            align-items: start;
+            gap: 6px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: chatIn 0.25s ease forwards;
+        }
+
+        .badge {
+            width: 18px;
+            height: 18px;
+        }
+
+        .badge-wrapper {
+            background: #19B51B;
+            border-radius: 2px;
+            display: inline-flex;
+        }
+
+        .username {
+            font-weight: bold;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .emote {
+            height: 28px;
+            vertical-align: middle;
+        }
+
+        .emote-only .emote {
+            height: 48px;
+        }
+
+        .user {
+            min-width: 40%;
+            height: max-content;
+            display: flex;
+            align-items: start;
+            justify-content: flex-end;
+            white-space: nowrap;
+        }
+
+        .user-content {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow: hidden;
+        }
+
+        .text {
+            width: 60%;
+            display: table;
+            gap: 0;
+            word-break: break-word;
+            overflow-x: hidden;
+        }
+
+        .colon {
+            font-weight: bold;
+        }
+
+        .fade-out {
+            opacity: 1;
+            transform: translateY(0);
+            animation: chatOut 0.25s ease forwards;
+        }
+
+        /* Configuración */
+        #configPanel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            width: 250px;
+        }
+
+        #configPanel h2 {
+            color: #fff;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .config-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .config-item label {
+            font-weight: 500;
+        }
+
+        .config-item input {
+            margin-left: 10px;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background: #333;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .config-item input[type="color"] {
+            padding: 0;
+            border: none;
+            height: 30px;
+            width: 30px;
+            cursor: pointer;
+        }
+
+        .config-item input[type="number"] {
+            width: 60px;
+        }
+
+        .config-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+
+        .apply-btn {
+            background: #28a745;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .apply-btn:hover {
+            background: #218838;
+        }
+
+        .apply-btn:active {
+            background: #1e7e34;
+        }
+
+        @keyframes chatOut {
+            to {
+                opacity: 0;
+            }
+        }
+
+        @keyframes chatIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chat"></div>
+
+    <script>
+        let twitchBadges = {};
+        let twitchGlobalBadges = {};
+        let twitchChannelBadges = {};
+
+        let ffzData = null;
+        let channelId = null;
+
+        const config = {
+            "channel": "Afroxira",        // Canal del chat
+            "colorText": "#fff",           // Color del texto (usuario y mensaje) (si el usuario eligió un color se asignará su propio color)
+            "maxMessages": 150,            // Cantidad máxima de mensajes en el chat
+            "messageLifetime": 0,          // Tiempo de vida de los mensajes en milisegundos (0 desactiva la función)
+            "bigEmotes": true,             // Agrandar emotes si son menos de 5
+            "fontSize": "22px",            // Tamaño de fuente
+            "ignoredUsers": [              // Lista de usuarios ignorados
+                "nightbot",
+                "streamelements",
+                "streamstickers"
+            ],
+            "chatAlignment": "center"      // Alineación del chat
+        };
+
+        let channel = config.channel;
+        let colorText = config.colorText;
+        let maxMessages = config.maxMessages;
+        let messageLifetime = config.messageLifetime;
+        let bigEmotes = config.bigEmotes;
+        let fontSize = config.fontSize;
+        let ignoredUsers = config.ignoredUsers;
+        let chatAlignment = config.chatAlignment;
+
+        const params = new URLSearchParams(location.search);
+        const chat = document.getElementById("chat");
+
+        /**
+         * Carga los datos de FFZ (FrankerFaceZ) para un canal.
+         * @async
+         * @function loadFFZ
+         */
+        async function loadFFZ() {
+            try {
+                const res = await fetch("https://api.frankerfacez.com/v1/room/" + channel.toLowerCase());
+                if (!res.ok) {
+                    console.warn("FFZ no disponible para este canal");
+                    ffzData = null;
+                    return;
+                }
+                ffzData = await res.json();
+                console.log(ffzData)
+            } catch (e) {
+                ffzData = null;
+            }
+        }
+
+        /**
+         * Carga las insignias globales de Twitch.
+         * @async
+         * @function loadGlobalBadges
+         */
+        async function loadGlobalBadges() {
+            const res = await fetch("https://api.ivr.fi/v2/twitch/badges/global");
+            const data = await res.json();
+            twitchGlobalBadges = data;
+        }
+
+        /**
+         * Obtiene el ID del canal de Twitch basado en su nombre de usuario (login).
+         * @async
+         * @function getChannelId
+         * @param {string} login - El nombre de usuario del canal en Twitch.
+         * @returns {string} El ID del canal de Twitch.
+         */
+        async function getChannelId(login) {
+            const res = await fetch("https://api.ivr.fi/v2/twitch/user?login=" + login);
+            const data = await res.json();
+
+            return data[0].id;
+        }
+
+        /**
+         * Obtiene la URL de la insignia de FFZ (FrankerFaceZ) para un tipo específico de insignia.
+         * @function getFFZBadge
+         * @param {string} badge - El nombre de la insignia (ej. "moderator" o "vip").
+         * @returns {string|null} La URL de la insignia o null si no existe.
+         */
+        function getFFZBadge(badge) {
+            if (!ffzData || !ffzData.room) return null;
+
+            if (badge === "moderator" && ffzData.room.mod_urls) {
+                return ffzData.room.mod_urls["2"];
+            }
+            if (badge === "vip" && ffzData.room.vip_badge) {
+                return ffzData.room.vip_badge["2"];
+            }
+            return null;
+        }
+
+        /**
+         * Carga las insignias del canal específico de Twitch.
+         * @async
+         * @function loadChannelBadges
+         * @param {string} channelId - El ID del canal de Twitch.
+         */
+        async function loadChannelBadges(channelId) {
+            const res = await fetch("https://api.ivr.fi/v2/twitch/badges/channel?id=" + channelId);
+            twitchChannelBadges = await res.json();
+        }
+
+        /**
+         * Obtiene la URL de la insignia de Twitch para un tipo específico de insignia.
+         * @function getTwitchBadge
+         * @param {string} badge - El nombre de la insignia de Twitch (ej. "subscriber/1").
+         * @returns {string|null} La URL de la insignia de Twitch o null si no existe.
+         */
+        function getTwitchBadge(badge) {
+            const [name, version] = badge.split("/");
+            const all = [...twitchChannelBadges, ...twitchGlobalBadges];
+            const found = all.find(b => b.set_id === name);
+            if (!found) return null;
+            const ver = found.versions.find(v => v.id === version);
+            if (!ver) return null;
+            return ver.image_url_2x;
+        }
+
+        /**
+         * Renderiza el mensaje con los emotes. Reemplaza los emotes por imágenes.
+         * @function renderMessageWithEmotes
+         * @param {string} message - El mensaje a renderizar.
+         * @param {string} emoteTag - Los emotes que deben ser reemplazados por imágenes.
+         * @returns {Node[]} Un arreglo de nodos de texto e imágenes de los emotes.
+         */
+        function renderMessageWithEmotes(message, emoteTag) {
+            if (!emoteTag) return [document.createTextNode(message)];
+
+            const parts = [];
+            const emotes = [];
+
+            emoteTag.split("/").forEach(e => {
+                const [id, positions] = e.split(":");
+                positions.split(",").forEach(p => {
+                    const [start, end] = p.split("-").map(Number);
+                    emotes.push({ id, start, end });
+                });
+            });
+
+            emotes.sort((a, b) => a.start - b.start);
+            let lastIndex = 0;
+
+            emotes.forEach(e => {
+                if (lastIndex < e.start) {
+                    parts.push(document.createTextNode(message.slice(lastIndex, e.start)));
+                }
+                const img = document.createElement("img");
+                img.src = "https://static-cdn.jtvnw.net/emoticons/v2/" + e.id + "/default/dark/2.0";
+                img.className = "emote";
+                parts.push(img);
+                lastIndex = e.end + 1;
+            });
+
+            if (lastIndex < message.length) {
+                parts.push(document.createTextNode(message.slice(lastIndex)));
+            }
+            return parts;
+        }
+
+        /**
+         * Crea un mensaje en el chat, incluyendo usuario, texto, emotes y badges.
+         * @function createMessage
+         * @param {string} user - El nombre de usuario que envió el mensaje.
+         * @param {string} text - El texto del mensaje.
+         * @param {Array} badges - Un arreglo de badges asociados al usuario.
+         * @param {string} emotes - Las etiquetas de los emotes en el mensaje.
+         * @param {string} color - El color del texto del mensaje.
+         * @param {Object} tags - Los tags asociados al mensaje.
+         */
+        function createMessage(user, text, badges, emotes, color, tags) {
+            const msg = document.createElement("div");
+            msg.className = "message";
+            msg.dataset.msgId = tags.id;
+            msg.dataset.user = user;
+
+            const userBlock = document.createElement("div");
+            userBlock.className = "user";
+
+            const userContent = document.createElement("div");
+            userContent.className = "user-content";
+            userBlock.appendChild(userContent);
+
+            const textBlock = document.createElement("div");
+            textBlock.className = "text";
+
+            badges.forEach(b => {
+                const badgeName = b.split("/")[0];
+                const ffzUrl = getFFZBadge(badgeName);
+                const twitchUrl = getTwitchBadge(b);
+
+                if (ffzUrl) {
+                    if (badgeName === "moderator") {
+                        const wrapper = document.createElement("span");
+                        wrapper.className = "badge-wrapper";
+                        const img = document.createElement("img");
+                        img.src = ffzUrl || twitchUrl;
+                        img.className = "badge";
+                        wrapper.appendChild(img);
+                        userContent.prepend(wrapper);
+                        return;
+                    }
+                    const img = document.createElement("img");
+                    img.src = ffzUrl;
+                    img.className = "badge";
+                    userContent.prepend(img);
+                    return;
+                }
+
+                // si no hay FFZ usa las insignias de Twitch
+                if (twitchUrl) {
+                    const img = document.createElement("img");
+                    img.src = twitchUrl;
+                    img.className = "badge";
+                    userContent.appendChild(img);
+                }
+            });
+
+            const username = document.createElement("span");
+            username.className = "username";
+            username.textContent = user;
+            username.style.color = color || colorText || "#fff";
+
+            const colon = document.createElement("span");
+            colon.className = "colon";
+            colon.textContent = ":";
+            colon.style.color = color || colorText || "#fff";
+
+            switch (chatAlignment) {
+                case "left":
+                    chat.style.alignItems = "start";
+
+                    msg.style.width = "100%";
+                    msg.style.justifyContent = "flex-start"
+
+                    userBlock.style.maxWidth = "40%";
+                    userBlock.style.minWidth = "141px";
+                    userBlock.style.justifyContent = "flex-start";
+
+                    textBlock.style.width = "max-content"
+                    textBlock.style.textAlign = "left"
+                    break;
+                case "right":
+                    chat.style.alignItems = "end"
+
+                    msg.style.width = "100%";
+                    msg.style.justifyContent = "flex-end";
+
+                    userBlock.style.maxWidth = "100%";
+                    userBlock.style.minWidth = "141px";
+                    userBlock.style.justifyContent = "flex-end";
+
+                    textBlock.style.width = "fit-content"
+                    textBlock.style.textAlign = "right"
+                    break;
+                case "center":
+                    chat.style.alignItems = "normal";
+
+                    msg.style.width = "auto"
+                    msg.style.justifyContent = "flex-start"
+
+                    userBlock.style.maxWidth = "100%";
+                    userBlock.style.minWidth = "40%";
+                    userBlock.style.justifyContent = "flex-end";
+
+                    textBlock.style.width = "fit-content"
+                    textBlock.style.textAlign = "left"
+                    break;
+                default:
+                    chat.style.alignItems = "normal";
+
+                    msg.style.width = "auto"
+                    msg.style.justifyContent = "flex-start"
+
+                    userBlock.style.maxWidth = "100%";
+                    userBlock.style.minWidth = "40%";
+                    userBlock.style.justifyContent = "flex-end";
+
+                    textBlock.style.width = "fit-content"
+                    textBlock.style.textAlign = "left"
+            }
+
+            userContent.appendChild(username);
+            userBlock.appendChild(colon);
+
+            const message = document.createElement("span");
+            const nodes = renderMessageWithEmotes(text, emotes);
+
+            msg.appendChild(userBlock);
+            msg.appendChild(textBlock);
+            nodes.forEach(n => textBlock.appendChild(n));
+
+            if (bigEmotes) {
+                if (textBlock.querySelectorAll(".emote").length <= 4 && textBlock.textContent.trim() === "") {
+                    msg.classList.add("emote-only");
+                }
+            }
+
+            chat.appendChild(msg);
+
+            if (messageLifetime > 0) {
+                setTimeout(() => {
+                    msg.classList.add("fade-out");
+                    setTimeout(() => { msg.remove(); }, 250);
+                }, messageLifetime);
+            }
+
+            while (chat.children.length > maxMessages) {
+                chat.removeChild(chat.firstChild);
+            }
+        }
+
+        /**
+         * Parsea un mensaje de la data cruda del socket de Twitch y extrae el nombre de usuario y el texto del mensaje.
+         * @function parseMessage
+         * @param {string} data - El mensaje crudo proveniente del socket.
+         * @returns {Object} El objeto con `username`, `message`, y los `tags`.
+         */
+        function parseMessage(data) {
+            const tagPart = data.slice(1, data.indexOf(" "));
+            const tags = {};
+
+            tagPart.split(";").forEach(tag => {
+                const [key, value] = tag.split("=");
+                tags[key] = value;
+            });
+
+            const prefixStart = data.indexOf(" :", 1) + 2;
+            const prefixEnd = data.indexOf("!", prefixStart);
+            const username = data.substring(prefixStart, prefixEnd);
+
+            const messageIndex = data.indexOf(" :", prefixEnd);
+            const message = data.substring(messageIndex + 2);
+
+            return { username, message, tags };
+        }
+
+        /**
+         * Conecta el cliente de chat a Twitch a través de WebSockets y maneja los mensajes entrantes.
+         * @function connectChat
+         */
+        function connectChat() {
+            const socket = new WebSocket("wss://irc-ws.chat.twitch.tv");
+            socket.onopen = () => {
+                socket.send("CAP REQ :twitch.tv/tags twitch.tv/commands twitch.tv/membership");
+                socket.send("PASS oauth:anonymous");
+                socket.send("NICK justinfan" + Math.floor(Math.random() * 100000));
+                socket.send("JOIN #" + channel);
+            };
+
+            socket.onmessage = (event) => {
+                const messages = event.data.split("\r\n");
+                messages.forEach(data => {
+                    if (!data) return;
+                    const msgs = chat.querySelectorAll(".message");
+
+                    if (data.startsWith("PING")) {
+                        socket.send("PONG :tmi.twitch.tv");
+                        return;
+                    }
+
+                    // borrar un mensaje específico
+                    if (data.includes("CLEARMSG")) {
+                        const tagPart = data.slice(1, data.indexOf(" "));
+                        const tags = {};
+                        tagPart.split(";").forEach(tag => {
+                            const [k, v] = tag.split("=");
+                            tags[k] = v;
+                        });
+
+                        const msgId = tags["target-msg-id"];
+                        const msg = chat.querySelector(`[data-msg-id="${msgId}"]`);
+                        if (msg) msg.remove();
+                        return;
+                    }
+
+                    // timeout / ban
+                    if (data.includes("CLEARCHAT")) {
+                        const username = data.split("CLEARCHAT")[1]?.split(":")[1]?.trim();
+                        if (!username) {
+                            chat.innerHTML = "";
+                            return;
+                        }
+
+                        msgs.forEach(m => {
+                            if (m.dataset.user && m.dataset.user.toLowerCase() === username.toLowerCase()) {
+                                m.remove();
+                            }
+                        });
+                        return;
+                    }
+
+                    if (!data.includes("PRIVMSG")) return;
+
+                    msgs.forEach((m, i) => {
+                        if (i < msgs.length - 6) {
+                            m.classList.add("old");
+                        }
+                    });
+
+                    const parsed = parseMessage(data);
+                    if (ignoredUsers.includes(parsed.username.toLowerCase())) return;
+
+                    const badges = parsed.tags.badges ? parsed.tags.badges.split(",") : [];
+                    createMessage(parsed.tags["display-name"], parsed.message, badges, parsed.tags.emotes, parsed.tags.color, parsed.tags);
+                });
+            };
+
+            socket.onclose = () => {
+                setTimeout(connectChat, 5000);
+            };
+        }
+
+        /**
+         * Inicia la configuración del chat, incluyendo la carga de badges y la conexión a Twitch.
+         * @async
+         * @function start
+         */
+        async function start() {
+            if (colorText && colorText.trim() !== "") document.body.style.color = colorText;
+            if (chat) {
+                if (fontSize && fontSize.trim() !== "") chat.style.fontSize = fontSize;
+            }
+
+            await loadFFZ();
+
+            channelId = await getChannelId(channel);
+
+            await loadGlobalBadges();
+            await loadChannelBadges(channelId);
+            connectChat();
+        }
+
+        start();
+    </script>
+
+</body>
+</html>
