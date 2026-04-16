@@ -4,6 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Twitch Chat Overlay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barriecito&family=Fruktur:ital@0;1&family=Germania+One&family=Macondo&display=swap" rel="stylesheet">
+
 
     <style>
         html,
@@ -200,6 +204,7 @@
         input[type="color"] {
             padding: 4px;
             height: 40px;
+            width: 100%;
             cursor: pointer;
         }
 
@@ -243,6 +248,7 @@
             display: inline-block;
             width: 46px;
             height: 24px;
+            margin-bottom: 0;
         }
 
         .switch input {
@@ -300,7 +306,7 @@
                     mensaje
                     desaparece, 0 evita que desaparezca</span>
                 <input name="messageLifetime" type="number" value="0" placeholder="0">
-                <label>Big emotes</label>
+                <label>Emotes grandes</label>
                 <span style="color: #b9b9c0; font-style: italic; font-size: 13px;">si el mensaje son solo emotes y son
                     menos
                     de 5 se agrandan</span>
@@ -308,6 +314,16 @@
                     <input type="checkbox" name="bigEmotes" value="true" checked>
                     <span class="slider"></span>
                 </label>
+                <label>Tipo de fuente</label>
+                <select name="fontFamily">
+                    <option value="sans-serif" style="font-family: sans-serif;">Sans Serif (predeterminada)</option>
+                    <option value="Macondo" style="font-family: Macondo;">Macondo</option>
+                    <option value="'Times New Roman', Times, serif" style="font-family: 'Times New Roman', Times, serif;">Times New Roman</option>
+                    <option value="Monospace" style="font-family: monospace;">Monospace</option>
+                    <option value="'Comic Sans MS'" style="font-family: 'Comic Sans MS';">Comic Sans MS</option>
+                    <option value="Germania One" style="font-family: Germania One;">Germania One</option>
+                </select>
+                <!--<input name="fontFamily" value="Arial, sans-serif" placeholder="Arial, sans-serif">-->
                 <label>Tamaño de fuente</label>
                 <input name="fontSize" value="22px" placeholder="22px">
                 <label>Alineación del chat</label>
@@ -320,10 +336,9 @@
                 <span style="color: #b9b9c0; font-style: italic; font-size: 13px;">los usuarios de la lista no
                     aparecerán en
                     el chat (deben estar separados por comas)</span>
-                <textarea name="ignoredUsers"
-                    placeholder="nightbot, streamelements">nightbot,streamelements,streamstickers</textarea>
+                <textarea name="ignoredUsers" placeholder="Ej: nightbot, streamelements"></textarea>
                 <button type="button" onclick="generateURL()">Generar URL</button>
-                <div id="result">https://lucaasbre.github.io/overlay.html</div>
+                <div id="result"></div>
                 <button type="button" onclick="copyURL(this)">Copiar al portapapeles</button>
             </div>
         </form>
@@ -436,6 +451,7 @@
                 "streamelements",
                 "streamstickers"
             ],
+            fontFamily: "sans-serif",
             chatAlignment: "center"
         };
 
@@ -454,7 +470,8 @@
                     .split(",")
                     .map(u => u.trim().toLowerCase())
                     .filter(u => u.length > 0)
-                : []
+                : [],
+            fontFamily: params.get("fontFamily") || defaultConfig.fontFamily,
         };
 
         let channel = config.channel;
@@ -463,6 +480,7 @@
         let messageLifetime = config.messageLifetime;
         let bigEmotes = config.bigEmotes;
         let fontSize = config.fontSize;
+        let fontFamily = config.fontFamily;
         let ignoredUsers = config.ignoredUsers;
         let chatAlignment = config.chatAlignment;
 
@@ -519,7 +537,7 @@
         }
 
         document.addEventListener("keydown", function (e) {
-            if (e.ctrlKey && e.key.toLowerCase() === "q") {
+            if (e.key.toLowerCase() === "q") {
                 e.preventDefault()
                 document.getElementById("configPanel").classList.toggle("show");
                 document.getElementById("chat").style.display = configOpen ? "flex" : "none";
@@ -528,14 +546,13 @@
         })
 
         function generateURL() {
+            const form = document.getElementById("configForm");
+            const data = new FormData(form);
 
-            const form = document.getElementById("configForm")
-            const data = new FormData(form)
+            const bigEmotesInput = form.querySelector('[name="bigEmotes"]');
+            data.set("bigEmotes", bigEmotesInput.checked ? "true" : "false");
 
-            const bigEmotesInput = form.querySelector('[name="bigEmotes"]')
-            data.set("bigEmotes", bigEmotesInput.checked)
-
-            const params = new URLSearchParams()
+            const params = new URLSearchParams();
 
             for (let [key, value] of data.entries()) {
 
@@ -543,19 +560,20 @@
                     value = value
                         .split(",")
                         .map(u => u.trim())
-                        .filter(u => u.length > 0)
+                        .filter(Boolean)
                         .join(",");
                 }
 
+                if (value === "" || value === null) continue;
 
-                if (value === "") continue;
+                params.set(key, value);
             }
 
-            const url = location.origin + location.pathname + "?" + params.toString()
+            const url = location.origin + location.pathname + "?" + params.toString();
 
-            document.getElementById("result").textContent = url
+            document.getElementById("result").textContent = url;
 
-            updatePreview(Object.fromEntries(params.entries()))
+            updatePreview(Object.fromEntries(params.entries()));
         }
 
         function updatePreview(config) {
@@ -658,6 +676,11 @@
                 preview.querySelectorAll(".big-emote").forEach(e => {
                     e.style.height = "48px";
                 });
+            }
+
+            if (config.fontFamily) {
+                document.getElementById("chat").style.fontFamily = config.fontFamily;
+                document.getElementById("preview").style.fontFamily = config.fontFamily;
             }
         }
 
@@ -1072,6 +1095,9 @@
             if (colorText && colorText.trim() !== "") document.body.style.color = colorText;
             if (chat) {
                 if (fontSize && fontSize.trim() !== "") chat.style.fontSize = fontSize;
+            }
+            if (fontFamily && fontFamily.trim() !== "") {
+                chat.style.fontFamily = fontFamily;
             }
 
             await loadFFZ();
