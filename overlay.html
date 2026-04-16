@@ -151,6 +151,7 @@
             overflow-y: scroll;
             height: calc(100vh - 42px);
         }
+
         form>div {
             display: flex;
             flex-direction: column;
@@ -200,7 +201,6 @@
             padding: 4px;
             height: 40px;
             cursor: pointer;
-            width: 100%;
         }
 
         button {
@@ -243,7 +243,6 @@
             display: inline-block;
             width: 46px;
             height: 24px;
-            margin-bottom: 0;
         }
 
         .switch input {
@@ -324,7 +323,7 @@
                 <textarea name="ignoredUsers"
                     placeholder="nightbot, streamelements">nightbot,streamelements,streamstickers</textarea>
                 <button type="button" onclick="generateURL()">Generar URL</button>
-                <div id="result"></div>
+                <div id="result">https://lucaasbre.github.io/overlay.html</div>
                 <button type="button" onclick="copyURL(this)">Copiar al portapapeles</button>
             </div>
         </form>
@@ -450,7 +449,12 @@
             bigEmotes: params.get("bigEmotes") !== null ? params.get("bigEmotes") === "true" : defaultConfig.bigEmotes,
             fontSize: params.get("fontSize") || defaultConfig.fontSize,
             chatAlignment: params.get("chatAlignment") || defaultConfig.chatAlignment,
-            ignoredUsers: defaultConfig.ignoredUsers
+            ignoredUsers: params.get("ignoredUsers")
+                ? params.get("ignoredUsers")
+                    .split(",")
+                    .map(u => u.trim().toLowerCase())
+                    .filter(u => u.length > 0)
+                : []
         };
 
         let channel = config.channel;
@@ -543,7 +547,8 @@
                         .join(",");
                 }
 
-                if (value !== "") params.set(key, value)
+
+                if (value === "") continue;
             }
 
             const url = location.origin + location.pathname + "?" + params.toString()
