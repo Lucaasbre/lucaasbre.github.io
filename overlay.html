@@ -15,11 +15,11 @@
         body {
             background: black;
             font-family: sans-serif;
-            color: #fff;
             overflow-y: hidden;
         }
 
-        #chat {
+        #chat,
+        #preview {
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -30,6 +30,7 @@
             text-shadow:
                 0 0 2px rgba(0, 0, 0, 0.8),
                 0 0 6px rgba(0, 0, 0, 0.6);
+            color: #fff;
         }
 
         .message {
@@ -87,7 +88,7 @@
 
         .text {
             width: 60%;
-            display: table;
+            display: flex;
             gap: 0;
             word-break: break-word;
             overflow-x: hidden;
@@ -104,85 +105,6 @@
         }
 
         /* Configuración */
-        #configPanel {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.9);
-            padding: 20px;
-            border-radius: 12px;
-            flex-direction: column;
-            gap: 20px;
-            z-index: 1000;
-            display: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-            width: 250px;
-        }
-
-        #configPanel h2 {
-            color: #fff;
-            font-size: 18px;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .config-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            color: #fff;
-        }
-
-        .config-item label {
-            font-weight: 500;
-        }
-
-        .config-item input {
-            margin-left: 10px;
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            background: #333;
-            color: #fff;
-            font-size: 14px;
-        }
-
-        .config-item input[type="color"] {
-            padding: 0;
-            border: none;
-            height: 30px;
-            width: 30px;
-            cursor: pointer;
-        }
-
-        .config-item input[type="number"] {
-            width: 60px;
-        }
-
-        .config-item input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-        }
-
-        .apply-btn {
-            background: #28a745;
-            color: #fff;
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .apply-btn:hover {
-            background: #218838;
-        }
-
-        .apply-btn:active {
-            background: #1e7e34;
-        }
 
         @keyframes chatOut {
             to {
@@ -196,11 +118,302 @@
                 transform: translateY(0);
             }
         }
+
+        #preview {
+            width: 100%;
+            height: 100vh;
+        }
+
+        #configPanel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #111;
+            display: none;
+            flex-direction: row;
+            gap: 10px;
+            overflow: auto;
+            z-index: 999;
+            border-right: 2px solid #333;
+        }
+
+        #configPanel.show {
+            display: flex;
+        }
+
+        form {
+            width: 340px;
+            padding: 20px;
+            background: #18181b;
+            border: 1px solid #2a2a2e;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            overflow-y: scroll;
+            height: calc(100vh - 42px);
+        }
+        form>div {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        form h2 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #b9b9c0;
+            margin-bottom: -10px;
+        }
+
+        input,
+        select,
+        textarea {
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #2f2f35;
+            background: #0e0e10;
+            color: #fff;
+            font-size: 14px;
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #9147ff;
+            box-shadow: 0 0 0 2px rgba(145, 71, 255, 0.25);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        input[type="color"] {
+            padding: 4px;
+            height: 40px;
+            cursor: pointer;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(135deg, #9147ff, #772ce8);
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform .1s, box-shadow .15s;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(145, 71, 255, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        #result {
+            margin-top: 10px;
+            word-break: break-all;
+            background: #0e0e10;
+            border: 1px solid #2f2f35;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.4;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+        }
+
+        .switch input {
+            display: none;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #2f2f35;
+            border-radius: 34px;
+            transition: .2s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            top: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: .2s;
+        }
+
+        .switch input:checked+.slider {
+            background-color: #9147ff;
+        }
+
+        .switch input:checked+.slider:before {
+            transform: translateX(22px);
+        }
     </style>
 </head>
 
 <body>
     <div id="chat"></div>
+
+    <div id="configPanel">
+        <form id="configForm">
+            <div>
+                <h2>Configuración</h2>
+                <label>Channel</label>
+                <input name="channel" value="Lucaasbre" placeholder="Lucaasbre">
+                <label>Color del texto</label>
+                <input name="colorText" type="color" value="#ffffff">
+                <label>Máximo de mensajes</label>
+                <span style="color: #b9b9c0; font-style: italic; font-size: 13px;">luego del limite se borran los mas
+                    viejos</span>
+                <input name="maxMessages" type="number" value="150" placeholder="150">
+                <label>Tiempo de vida del mensaje</label>
+                <span style="color: #b9b9c0; font-style: italic; font-size: 13px;">al finaliza ese tiempo de vida el
+                    mensaje
+                    desaparece, 0 evita que desaparezca</span>
+                <input name="messageLifetime" type="number" value="0" placeholder="0">
+                <label>Big emotes</label>
+                <span style="color: #b9b9c0; font-style: italic; font-size: 13px;">si el mensaje son solo emotes y son
+                    menos
+                    de 5 se agrandan</span>
+                <label class="switch">
+                    <input type="checkbox" name="bigEmotes" value="true" checked>
+                    <span class="slider"></span>
+                </label>
+                <label>Tamaño de fuente</label>
+                <input name="fontSize" value="22px" placeholder="22px">
+                <label>Alineación del chat</label>
+                <select name="chatAlignment">
+                    <option value="left">Izquierda</option>
+                    <option value="center" selected>Centro</option>
+                    <option value="right">Derecha</option>
+                </select>
+                <label>Usuarios ignorados</label>
+                <span style="color: #b9b9c0; font-style: italic; font-size: 13px;">los usuarios de la lista no
+                    aparecerán en
+                    el chat (deben estar separados por comas)</span>
+                <textarea name="ignoredUsers"
+                    placeholder="nightbot, streamelements">nightbot,streamelements,streamstickers</textarea>
+                <button type="button" onclick="generateURL()">Generar URL</button>
+                <div id="result"></div>
+                <button type="button" onclick="copyURL(this)">Copiar al portapapeles</button>
+            </div>
+        </form>
+        <div id="preview">
+            <div class="message" data-msg-id="f3e8487b-f1b2-4950-a408-a13b014dbafd" data-user="Lucaasbre"
+                style="width: 100%; justify-content: flex-end;">
+                <div class="user" style="max-width: 100%; min-width: 141px; justify-content: flex-end;">
+                    <div class="user-content">
+                        <img src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/2"
+                            class="badge">
+                        <img src="https://static-cdn.jtvnw.net/badges/v1/35ebfad4-9dfb-4009-8e98-d121fdef0027/2"
+                            class="badge">
+                        <img src="https://static-cdn.jtvnw.net/badges/v1/ca9f2cd1-ab84-4e45-9192-e7074cb001ea/2"
+                            class="badge">
+                        <span class="username" style="color: rgb(255, 0, 153);">Lucaasbre</span>
+                    </div>
+                    <span class="colon" style="color: rgb(255, 0, 153);">:</span>
+                </div>
+                <div class="text" style="width: fit-content; text-align: right;">Hola Mundo!</div>
+            </div>
+
+            <div class="message" data-msg-id="f3e8487b-f1b2-4950-a408-a13b014dbafd" data-user="Lucaasbre"
+                style="width: 100%; justify-content: flex-end;">
+                <div class="user" style="max-width: 100%; min-width: 141px; justify-content: flex-end;">
+                    <div class="user-content"><img
+                            src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/2"
+                            class="badge"><img
+                            src="https://static-cdn.jtvnw.net/badges/v1/35ebfad4-9dfb-4009-8e98-d121fdef0027/2"
+                            class="badge"><img
+                            src="https://static-cdn.jtvnw.net/badges/v1/ca9f2cd1-ab84-4e45-9192-e7074cb001ea/2"
+                            class="badge"><span class="username" style="color: rgb(255, 0, 153);">Lucaasbre</span></div>
+                    <span class="colon" style="color: rgb(255, 0, 153);">:</span>
+                </div>
+                <div class="text" style="width: fit-content; text-align: right;">
+                    Mensajes de prueba
+                    <img src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_c247e471631543268fa7c7aa9af239a5/default/dark/2.0"
+                        class="emote">
+                    <img src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_c247e471631543268fa7c7aa9af239a5/default/dark/2.0"
+                        class="emote">
+                </div>
+            </div>
+
+            <div class="message" data-msg-id="f3e8487b-f1b2-4950-a408-a13b014dbafd" data-user="Lucaasbre"
+                style="width: 100%; justify-content: flex-end;">
+                <div class="user" style="max-width: 100%; min-width: 141px; justify-content: flex-end;">
+                    <div class="user-content"><img
+                            src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/2"
+                            class="badge"><img
+                            src="https://static-cdn.jtvnw.net/badges/v1/35ebfad4-9dfb-4009-8e98-d121fdef0027/2"
+                            class="badge"><img
+                            src="https://static-cdn.jtvnw.net/badges/v1/ca9f2cd1-ab84-4e45-9192-e7074cb001ea/2"
+                            class="badge"><span class="username" style="color: rgb(255, 0, 153);">Lucaasbre</span></div>
+                    <span class="colon" style="color: rgb(255, 0, 153);">:</span>
+                </div>
+                <div class="text" style="width: fit-content; text-align: right;">
+                    <img src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_c247e471631543268fa7c7aa9af239a5/default/dark/2.0"
+                        class="big-emote">
+                    <img src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_c247e471631543268fa7c7aa9af239a5/default/dark/2.0"
+                        class="big-emote">
+                </div>
+            </div>
+
+            <div class="message" data-msg-id="7e7e6c76-2a56-4133-98e1-db3c3730caa5" data-user="Lucaasbre"
+                style="width: 100%; justify-content: flex-end;">
+                <div class="user" style="max-width: 100%; min-width: 141px; justify-content: flex-end;">
+                    <div class="user-content">
+                        <img src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/2"
+                            class="badge">
+                        <img src="https://static-cdn.jtvnw.net/badges/v1/35ebfad4-9dfb-4009-8e98-d121fdef0027/2"
+                            class="badge">
+                        <img src="https://static-cdn.jtvnw.net/badges/v1/ca9f2cd1-ab84-4e45-9192-e7074cb001ea/2"
+                            class="badge">
+                        <span class="username" style="color: rgb(255, 0, 153);">Lucaasbre</span>
+                    </div>
+                    <span class="colon" style="color: rgb(255, 0, 153);">:</span>
+                </div>
+                <div class="text" style="width: fit-content; text-align: right;">
+                    <img src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_c247e471631543268fa7c7aa9af239a5/default/dark/2.0"
+                        class="emote">
+                    <img src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_c247e471631543268fa7c7aa9af239a5/default/dark/2.0"
+                        class="emote">
+                    <img src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_c247e471631543268fa7c7aa9af239a5/default/dark/2.0"
+                        class="emote">
+                    <img src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_c247e471631543268fa7c7aa9af239a5/default/dark/2.0"
+                        class="emote">
+                    <img src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_c247e471631543268fa7c7aa9af239a5/default/dark/2.0"
+                        class="emote">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         let twitchBadges = {};
@@ -210,19 +423,32 @@
         let ffzData = null;
         let channelId = null;
 
-        const config = {
-            "channel": "Lucaasbre",        // Canal del chat
-            "colorText": "#fff",           // Color del texto (usuario y mensaje) (si el usuario eligió un color se asignará su propio color)
-            "maxMessages": 150,            // Cantidad máxima de mensajes en el chat
-            "messageLifetime": 0,          // Tiempo de vida de los mensajes en milisegundos (0 desactiva la función)
-            "bigEmotes": true,             // Agrandar emotes si son menos de 5
-            "fontSize": "22px",            // Tamaño de fuente
-            "ignoredUsers": [              // Lista de usuarios ignorados
+        const defaultConfig = {
+            channel: "Lucaasbre",
+            colorText: "#fff",
+            maxMessages: 150,
+            messageLifetime: 0,
+            bigEmotes: true,
+            fontSize: "22px",
+            ignoredUsers: [
                 "nightbot",
                 "streamelements",
                 "streamstickers"
             ],
-            "chatAlignment": "center"      // Alineación del chat
+            chatAlignment: "center"
+        };
+
+        const params = new URLSearchParams(window.location.search);
+
+        const config = {
+            channel: params.get("channel") || defaultConfig.channel,
+            colorText: params.get("colorText") || defaultConfig.colorText,
+            maxMessages: Number(params.get("maxMessages")) || defaultConfig.maxMessages,
+            messageLifetime: Number(params.get("messageLifetime")) || defaultConfig.messageLifetime,
+            bigEmotes: params.get("bigEmotes") !== null ? params.get("bigEmotes") === "true" : defaultConfig.bigEmotes,
+            fontSize: params.get("fontSize") || defaultConfig.fontSize,
+            chatAlignment: params.get("chatAlignment") || defaultConfig.chatAlignment,
+            ignoredUsers: defaultConfig.ignoredUsers
         };
 
         let channel = config.channel;
@@ -234,8 +460,217 @@
         let ignoredUsers = config.ignoredUsers;
         let chatAlignment = config.chatAlignment;
 
-        const params = new URLSearchParams(location.search);
+        console.log(config);
+
         const chat = document.getElementById("chat");
+
+        let configOpen = false;
+
+        const form = document.getElementById("configForm");
+
+        form.addEventListener("input", applyLivePreview);
+        form.addEventListener("change", applyLivePreview);
+
+        function copyURL(btn) {
+
+            const text = document.getElementById("result").textContent;
+            if (!text) return;
+
+            const originalText = btn.textContent;
+            const originalColor = btn.style.background;
+
+            navigator.clipboard.writeText(text).then(() => {
+
+                btn.textContent = "URL copiada";
+                btn.style.background = "#22c55e";
+                btn.disabled = true;
+
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = originalColor;
+                    btn.disabled = false;
+                }, 3000);
+
+            }).catch(() => {
+                btn.textContent = "Error al copiar";
+                btn.style.background = "#ef4444";
+
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = originalColor;
+                }, 3000);
+            });
+        }
+
+        function applyLivePreview() {
+            const data = new FormData(form);
+            const config = Object.fromEntries(data.entries());
+
+            const bigEmotesInput = form.querySelector('[name="bigEmotes"]')
+            config.bigEmotes = bigEmotesInput.checked
+
+            updatePreview(config);
+        }
+
+        document.addEventListener("keydown", function (e) {
+            if (e.ctrlKey && e.key.toLowerCase() === "q") {
+                e.preventDefault()
+                document.getElementById("configPanel").classList.toggle("show");
+                document.getElementById("chat").style.display = configOpen ? "flex" : "none";
+                configOpen = !configOpen;
+            }
+        })
+
+        function generateURL() {
+
+            const form = document.getElementById("configForm")
+            const data = new FormData(form)
+
+            const bigEmotesInput = form.querySelector('[name="bigEmotes"]')
+            data.set("bigEmotes", bigEmotesInput.checked)
+
+            const params = new URLSearchParams()
+
+            for (let [key, value] of data.entries()) {
+
+                if (key === "ignoredUsers") {
+                    value = value
+                        .split(",")
+                        .map(u => u.trim())
+                        .filter(u => u.length > 0)
+                        .join(",");
+                }
+
+                if (value !== "") params.set(key, value)
+            }
+
+            const url = location.origin + location.pathname + "?" + params.toString()
+
+            document.getElementById("result").textContent = url
+
+            updatePreview(Object.fromEntries(params.entries()))
+        }
+
+        function updatePreview(config) {
+            const preview = document.getElementById("preview");
+
+            if (config.fontSize) {
+                preview.style.fontSize = config.fontSize;
+            }
+
+            if (config.chatAlignment) {
+                const container = document.getElementById("preview");
+                const messages = container.querySelectorAll(".message");
+
+                messages.forEach(msg => {
+
+                    const userBlock = msg.querySelector(".user");
+                    const textBlock = msg.querySelector(".text");
+
+                    if (!userBlock) return;
+                    if (!textBlock) return;
+                    switch (config.chatAlignment) {
+
+                        case "left":
+
+                            container.style.alignItems = "start";
+
+                            msg.style.width = "100%";
+                            msg.style.justifyContent = "flex-start";
+
+                            userBlock.style.maxWidth = "40%";
+                            userBlock.style.minWidth = "141px";
+                            userBlock.style.justifyContent = "flex-start";
+
+                            textBlock.style.width = "max-content";
+                            textBlock.style.textAlign = "left";
+
+                            break;
+
+                        case "right":
+
+                            container.style.alignItems = "end";
+
+                            msg.style.width = "100%";
+                            msg.style.justifyContent = "flex-end";
+
+                            userBlock.style.maxWidth = "100%";
+                            userBlock.style.minWidth = "141px";
+                            userBlock.style.justifyContent = "flex-end";
+
+                            textBlock.style.width = "fit-content";
+                            textBlock.style.textAlign = "right";
+
+                            break;
+
+                        case "center":
+
+                            container.style.alignItems = "normal";
+
+                            msg.style.width = "auto";
+                            msg.style.justifyContent = "flex-start";
+
+                            userBlock.style.maxWidth = "100%";
+                            userBlock.style.minWidth = "40%";
+                            userBlock.style.justifyContent = "flex-end";
+
+                            textBlock.style.width = "fit-content";
+                            textBlock.style.textAlign = "left";
+
+                            break;
+
+                        default:
+
+                            container.style.alignItems = "normal";
+
+                            msg.style.width = "auto";
+                            msg.style.justifyContent = "flex-start";
+
+                            userBlock.style.maxWidth = "100%";
+                            userBlock.style.minWidth = "40%";
+                            userBlock.style.justifyContent = "flex-end";
+
+                            textBlock.style.width = "fit-content";
+                            textBlock.style.textAlign = "left";
+
+                    }
+
+                });
+            }
+
+            if (config.colorText) {
+                document.getElementById("chat").style.color = config.colorText;
+                document.getElementById("preview").style.color = config.colorText;
+            }
+
+            if (config.bigEmotes === false || config.bigEmotes === "false") {
+                preview.querySelectorAll(".big-emote").forEach(e => {
+                    e.style.height = "28px";
+                });
+            } else {
+                preview.querySelectorAll(".big-emote").forEach(e => {
+                    e.style.height = "48px";
+                });
+            }
+        }
+
+        function loadParams() {
+            const params = new URLSearchParams(window.location.search)
+            const form = document.getElementById("configForm")
+            params.forEach((value, key) => {
+                const input = form.elements[key]
+                if (!input) return
+                if (input.type === "checkbox") {
+                    input.checked = value === "true"
+                } else {
+                    input.value = value
+                }
+            })
+            updatePreview(Object.fromEntries(params))
+        }
+
+        loadParams();
+        applyLivePreview();
 
         /**
          * Carga los datos de FFZ (FrankerFaceZ) para un canal.
@@ -645,4 +1080,5 @@
     </script>
 
 </body>
+
 </html>
