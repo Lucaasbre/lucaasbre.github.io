@@ -5,10 +5,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Lucaasbre - Portfolio</title>
-    <link rel="icon" type="image/png" href="./assets/favicon.png">
+    <link rel="icon" type="image/png" href="./assets/assets/favicon.png">
     <link rel="stylesheet" href="style.css">
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-
 </head>
 
 <body>
@@ -18,7 +17,14 @@
                 <h1>Lucaasbre</h1>
                 <p>Developer / 3D Modeler / Streamer</p>
             </div>
-            <model-viewer class="hero-model" src="./assets/diamond.glb" auto-rotate camera-controls disable-zoom disable-tap disable-pan interaction-prompt="none" rotation-per-second="20deg" shadow-intensity="0">
+
+            <nav>
+                <a class="pill" href="#projects">Projects</a>
+                <a class="pill" href="showcase.html">Art Showcase</a>
+            </nav>
+
+            <model-viewer class="hero-model" src="./assets/assets/diamond.glb" auto-rotate camera-controls disable-zoom
+                disable-tap disable-pan interaction-prompt="none" rotation-per-second="20deg" shadow-intensity="0">
             </model-viewer>
         </header>
 
@@ -30,11 +36,10 @@
                     Games, tools, and websites. This site is a record of what I am building, testing, and refining over
                     time.
                 </p>
-                <!--
-                    <div class="cta-row">
-                        <a class="btn primary" href="#projects">View projects</a>
-                    </div>
-                -->
+                <div class="cta-row">
+                    <a class="btn primary" href="#projects">View projects</a>
+                    <a class="btn" href="showcase.html">Open art showcase</a>
+                </div>
             </div>
 
             <div class="card hero-side">
@@ -56,68 +61,150 @@
         <section id="skills">
             <div class="card skills">
                 <div class="kicker"><span class="dot"></span> Skills</div>
-                <div class="grid">
-                    <div class="chip">Unity <b>●</b></div>
-                    <div class="chip">UI <b>●</b></div>
-                    <div class="chip">Blender <b>●</b></div>
-                    <div class="chip">C# <b>●</b></div>
-                    <div class="chip">Java <b>●</b></div>
+
+                <div class="skills-layout">
+                    <div class="skill-group">
+                        <h4>Game Dev</h4>
+                        <div class="grid">
+                            <div class="chip">Unity <b>●</b></div>
+                            <div class="chip">C# <b>●</b></div>
+                            <div class="chip">Gameplay <b>●</b></div>
+                            <div class="chip">Prototyping <b>●</b></div>
+                        </div>
+                    </div>
+
+                    <div class="skill-group">
+                        <h4>Web</h4>
+                        <div class="grid">
+                            <div class="chip">HTML <b>●</b></div>
+                            <div class="chip">CSS <b>●</b></div>
+                            <div class="chip">PHP <b>●</b></div>
+                            <div class="chip">MySQL <b>●</b></div>
+                            <div class="chip">JavaScript <b>●</b></div>
+                            <div class="chip">UI Design <b>●</b></div>
+                        </div>
+                    </div>
+
+                    <div class="skill-group">
+                        <h4>3D / Visual</h4>
+                        <div class="grid">
+                            <div class="chip">Blender <b>●</b></div>
+                            <div class="chip">Low Poly <b>●</b></div>
+                            <div class="chip">Modeling <b>●</b></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="card projects" id="projects">
                 <div class="kicker"><span class="dot"></span> Projects</div>
+
                 <div class="project-list">
-                    <a class="project" href="https://matesyjueguitos.itch.io/the-highway" target="_blank">
-                        <div class="meta">
-                            <div class="name">The Highway</div>
-                            <div class="desc"> A game where you move along a bridge, dodging cars to keep them from
-                                hitting your shadow.</div>
+                    <button class="project" type="button" data-site="https://pievakids.com"
+                        data-images="">
+                        <div class="project-media media-carousel">
+                            <img src="" alt="Pievakids preview">
+                            <span class="project-media-dots"></span>
                         </div>
-                        <div class="tag">Game</div>
-                    </a>
-                    <a class="project" href="https://lucaasbre.github.io/owStats/index.html" target="_blank">
                         <div class="meta">
-                            <div class="project-content">
-                                <div class="name">Overwatch Stats</div>
-                                <div class="desc">A small web project to view your Overwatch statistics... and feel
-                                    better
-                                    or worse depending on the results.</div>
-                            </div>
+                            <div class="name">Pievakids</div>
+                            <div class="project-date">Jul 2026</div>
+                            <div class="desc">A custom e-commerce platform for children's clothing, designed to provide a simple shopping experience and full control over products, variants, payments, shipping, and customer orders.</div>
+                            <div class="project-extra"><span>PHP</span><span>MySQL</span><span>E-commerce</span></div>
+                            <div class="project-note">Built from scratch to manage the entire shopping experience, from product selection to order fulfillment.</div>
                         </div>
                         <div class="tag">Web</div>
-                    </a>
-                    <a class="project"
-                        href="https://chromewebstore.google.com/detail/kncajcllolgcifmhdojlocccdjnfflga?utm_source=item-share-cb"
-                        target="_blank">
+                    </button>
+                    <button class="project" type="button"
+                        data-site="https://chromewebstore.google.com/detail/mlcglpmphakepfdgclfcmpkppiefccod?utm_source=item-share-cb"
+                        data-images="./assets/project-tintlab-1.png,./assets/project-tintlab-2.png,./assets/project-tintlab-3.png">
+                        <div class="project-media media-carousel">
+                            <img src="./assets/project-tintlab-1.png" alt="TintLab preview">
+                            <span class="project-media-dots"></span>
+                        </div>
                         <div class="meta">
-                            <div class="project-content">
-                                <div class="name">BYS - Privacy Colors</div>
-                                <div class="desc">A browser extension to customize YouTube privacy icons colors for
-                                    quick visual identification.</div>
-                            </div>
+                            <div class="name">TintLab - Contrast & Palettes</div>
+                            <div class="project-date">Mar 2026</div>
+                            <div class="desc">A browser extension for analyzing colors, generating contrast combinations, and creating custom color palettes.</div>
+                            <div class="project-extra"><span>Chrome Extension</span><span>UX</span><span>Tool</span></div>
+                            <div class="project-note">Small, but packs a punch for designers and developers.</div>
                         </div>
                         <div class="tag">Tool</div>
-                    </a>
+                    </button>
+                    <button class="project" type="button"
+                        data-site="https://chromewebstore.google.com/detail/kncajcllolgcifmhdojlocccdjnfflga?utm_source=item-share-cb"
+                        data-images="./assets/project-bys-1.png">
+                        <div class="project-media media-carousel">
+                            <img src="./assets/project-bys-1.png" alt="BYS preview">
+                            <span class="project-media-dots"></span>
+                        </div>
+                        <div class="meta">
+                            <div class="name">BYS - Privacy Colors</div>
+                            <div class="project-date">Feb 2026</div>
+                            <div class="desc">A browser extension that customizes YouTube privacy icons so they can be identified faster at a glance.</div>
+                            <div class="project-extra"><span>Chrome Extension</span><span>UX</span><span>Customization</span></div>
+                            <div class="project-note">A subtle, yet impactful improvement to your browsing experience.</div>
+                        </div>
+                        <div class="tag">Tool</div>
+                    </button>
+                    <button class="project" type="button" data-site="https://lucaasbre.github.io/owStats/index.html"
+                        data-images="./assets/project-owstats-1.png,./assets/project-owstats-2.png,./assets/project-owstats-3.png">
+                        <div class="project-media media-carousel">
+                            <img src="./assets/project-owstats-1.png" alt="Overwatch Stats preview">
+                            <span class="project-media-dots"></span>
+                        </div>
+                        <div class="meta">
+                            <div class="name">Overwatch Stats</div>
+                            <div class="project-date">Nov 2025</div>
+                            <div class="desc">A web project to visualize Overwatch stats in a cleaner and more understandable way, comparing performance and making numbers less ugly.</div>
+                            <div class="project-extra"><span>JavaScript</span><span>Charts</span><span>Overwatch</span></div>
+                            <div class="project-note">Converts raw data into useful information.</div>
+                        </div>
+                        <div class="tag">Web</div>
+                    </button>
+                    <button class="project" type="button" data-site="https://matesyjueguitos.itch.io/the-highway"
+                        data-images="./assets/project-highway-1.png,./assets/project-highway-2.png,./assets/project-highway-3.png">
+                        <div class="project-media media-carousel">
+                            <img src="./assets/project-highway-1.png" alt="The Highway preview">
+                            <span class="project-media-dots"></span>
+                        </div>
+                        <div class="meta">
+                            <div class="name">The Highway</div>
+                            <div class="project-date">Sep 2025</div>
+                            <div class="desc">A game where you move along a bridge, dodging cars to keep them from hitting your shadow.</div>
+                            <div class="project-extra"><span>Unity</span><span>Arcade</span><span>Game</span></div>
+                            <div class="project-note">A game where precision and reflexes are essential.</div>
+                        </div>
+                        <div class="tag">Game</div>
+                    </button>
                 </div>
             </div>
         </section>
 
-        <footer id="contact">
+        <div class="project-lightbox" id="projectLightbox" aria-hidden="true">
+            <div class="project-lightbox-backdrop" id="projectLightboxBackdrop"></div>
+            <div class="project-lightbox-content">
+                <button class="project-lightbox-close" id="projectLightboxClose" type="button" aria-label="Cerrar visor">x</button>
+                <button class="project-lightbox-nav project-lightbox-prev" id="projectLightboxPrev" type="button" aria-label="Imagen anterior">&lsaquo;</button>
+                <img id="projectLightboxImage" src="" alt="Project preview">
+                <button class="project-lightbox-nav project-lightbox-next" id="projectLightboxNext" type="button" aria-label="Imagen siguiente">&rsaquo;</button>
+                <a class="btn primary project-site-btn" id="projectSiteButton" href="#" target="_blank" rel="noopener">Visit site</a>
+            </div>
+        </div>
+
+        <footer id="links">
             <div>© <span id="year"></span> Lucaasbre - Made in <span class="arg">Argentina</span></div>
             <div class="links">
                 <a href="https://github.com/Lucaasbre" target="_blank">GitHub</a>
                 <a href="https://matesyjueguitos.itch.io/" target="_blank">itch.io (Chill)</a>
-                <!--<a href="https://sinistragames.itch.io/" target="_blank">itch.io (Horror)</a>-->
+                <a href="https://sinistragames.itch.io/" target="_blank">itch.io (Horror)</a>
                 <a href="https://www.instagram.com/lukasbresi" target="_blank">Instagram</a>
                 <a href="https://www.twitch.tv/lucaasbre" target="_blank">Twitch</a>
             </div>
         </footer>
     </div>
 
-    <script>
-        document.getElementById("year").textContent = new Date().getFullYear();
-    </script>
+    <script src="projects.js"></script>
 </body>
 
 </html>

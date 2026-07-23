@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Lucaasbre - Art Showcase</title>
+    <link rel="stylesheet" href="art.css">
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+</head>
+
+<body>
+    <div class="wrap">
+
+        <div class="lightbox" id="lightbox" aria-hidden="true">
+            <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+
+            <div class="lightbox-content">
+                <button class="lightbox-close" id="lightboxClose" aria-label="Cerrar visor">✕</button>
+
+                <div class="lightbox-stage" id="lightboxStage">
+                </div>
+
+                <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Imagen anterior">&lsaquo;</button>
+                <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Imagen siguiente">&rsaquo;</button>
+
+                <div class="lightbox-hint" id="lightboxHint">
+                    Mouse wheel for zooming · Drag to move · Esc to close
+                </div>
+            </div>
+        </div>
+
+        <header class="topbar">
+            <div class="brand">
+                <div>
+                    <h1>Art Showcase</h1>
+                </div>
+            </div>
+
+            <nav>
+                <a class="pill" href="#models">3D Models</a>
+                <a class="pill" href="#drawings">Drawings</a>
+                <a class="pill" href="index.html#projects">Projects</a>
+                <a class="pill" href="index.html">Back to Portfolio</a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <div class="hero-copy card">
+                <div class="kicker"><span class="dot"></span> visual archive</div>
+                <h2>Things I build when code is not enough</h2>
+                <p>
+                    A collection of 3D models, drawings, and visual pieces.
+                    Some were made for games, some for style, and some just because the idea looked too good to ignore.
+                </p>
+                <div class="cta-row">
+                    <a class="btn primary" href="#models">View models</a>
+                    <a class="btn" href="index.html#projects">Go to portfolio projects</a>
+                </div>
+            </div>
+
+            <div class="hero-preview card">
+                <model-viewer src="./assets/diamond.glb" auto-rotate camera-controls disable-pan disable-zoom
+                    interaction-prompt="none" shadow-intensity="0" class="hero-model">
+                </model-viewer>
+            </div>
+        </section>
+
+        <section class="gallery-section" id="models">
+            <div class="section-head">
+                <div>
+                    <div class="kicker"><span class="dot"></span> 3D Models</div>
+                    <h3>Modeling</h3>
+                </div>
+                <p>Objects, props, and assets made for games.</p>
+            </div>
+
+            <div class="masonry" id="modelsMasonry">
+                <div class="masonry-col"></div>
+                <div class="masonry-col"></div>
+                <div class="masonry-col"></div>
+
+                <article class="art-card masonry-item">
+                    <div class="viewer-box">
+                        <model-viewer src="./assets/potion.glb" auto-rotate camera-controls disable-pan
+                            rotation-per-second="15deg" interaction-prompt="none" shadow-intensity="0">
+                        </model-viewer>
+                    </div>
+                    <div class="art-info">
+                        <div class="art-top">
+                            <h4>Potion</h4>
+                            <span class="tag">3D</span>
+                        </div>
+                        <div class="art-meta">Jan 2026 · Blender</div>
+                        <p>A small selection from the Magic Low Poly Pack 3D asset collection.</p>
+                    </div>
+                </article>
+
+                <article class="art-card masonry-item">
+                    <div class="thumb media-carousel"
+                        data-images="./assets/YPNStation.png">
+                        <img src="./assets/YPNStation.png" alt="3D model preview">
+                        <button class="carousel-btn carousel-prev" type="button" aria-label="Imagen anterior">&lsaquo;</button>
+                        <button class="carousel-btn carousel-next" type="button" aria-label="Imagen siguiente">&rsaquo;</button>
+                        <div class="carousel-dots" aria-hidden="true"></div>
+                    </div>
+                    <div class="art-info">
+                        <div class="art-top">
+                            <h4>YPN Station</h4>
+                            <span class="tag">3D</span>
+                        </div>
+                        <div class="art-meta">Jan 2026 · Blender</div>
+                        <p>A 3D model of a fictional gas station called YPN, created for a horror video game that was
+                            never released.</p>
+                    </div>
+                </article>
+
+                <article class="art-card masonry-item">
+                    <div class="thumb media-carousel"
+                        data-images="./assets/MagicLowPolyPack-1.png,./assets/MagicLowPolyPack-2.png,./assets/MagicLowPolyPack-3.png,./assets/MagicLowPolyPack-4.png">
+                        <img src="./assets/MagicLowPolyPack-1.png" alt="3D model preview">
+                        <button class="carousel-btn carousel-prev" type="button" aria-label="Imagen anterior">&lsaquo;</button>
+                        <button class="carousel-btn carousel-next" type="button" aria-label="Imagen siguiente">&rsaquo;</button>
+                        <div class="carousel-dots" aria-hidden="true"></div>
+                    </div>
+                    <div class="art-info">
+                        <div class="art-top">
+                            <h4>Magic Low Poly Pack</h4>
+                            <span class="tag">3D</span>
+                        </div>
+                        <div class="art-meta">Jan 2026 · Blender</div>
+                        <p>A lightweight collection of low-poly magical props, including cauldrons, potions, books,
+                            candles, staffs, crystals, and other fantasy assets ready to use in games.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+        <section class="gallery-section" id="drawings">
+            <div class="section-head">
+                <div>
+                    <div class="kicker"><span class="dot"></span> Drawings</div>
+                    <h3>Sketches / concepts / illustrations</h3>
+                </div>
+                <p>Drawings, visual ideas, and style explorations.</p>
+            </div>
+
+            <div class="masonry" id="drawingsMasonry">
+                <div class="masonry-col"></div>
+                <div class="masonry-col"></div>
+                <div class="masonry-col"></div>
+
+                <article class="art-card masonry-item">
+                    <div class="thumb">
+                        <img src="./assets/ViolinistElf.png" alt="Drawing preview">
+                    </div>
+                    <div class="art-info">
+                        <div class="art-top">
+                            <h4>Violinist Elf</h4>
+                            <span class="tag">Drawing</span>
+                        </div>
+                        <div class="art-meta">Dec 2025 · Digital</div>
+                        <p>Drawing of a violin-playing elf, inspired by the lyrics of Spinetta’s <a
+                                href="https://youtu.be/c-cNfZwU6_w?si=UfgXOw6O2HMFIrYB" target="_blank"
+                                style="color: var(--accent);">“Canción Para Los Días de La Vida”</a></p>
+                    </div>
+                </article>
+
+                <article class="art-card masonry-item">
+                    <div class="thumb">
+                        <img src="./assets/CharacterPixelArt.gif" alt="Drawing preview">
+                    </div>
+                    <div class="art-info">
+                        <div class="art-top">
+                            <h4>Pixel art character</h4>
+                            <span class="tag">Drawing</span>
+                        </div>
+                        <div class="art-meta">Nov 2025 · Pixel Art</div>
+                        <p>Pixel art character design, originally created for a video game and later discarded during
+                            development.</p>
+                    </div>
+                </article>
+                <!--
+                <article class="art-card masonry-item">
+                    <div class="thumb">
+                        <img src="./assets/Stella.png" alt="Drawing preview">
+                    </div>
+                    <div class="art-info">
+                        <div class="art-top">
+                            <h4>Stella Clunis Magnae</h4>
+                            <span class="tag">Drawing</span>
+                        </div>
+                        <div class="art-meta">Aug 2025 · Pencil</div>
+                        <p>A pencil drawing inspired by images of scientific explorations and broadcasts from the
+                            Argentine Sea.</p>
+                    </div>
+                </article>
+                -->
+            </div>
+        </section>
+        <footer id="links">
+            <div>© <span id="year"></span> Lucaasbre - Made in <span class="arg">Argentina</span></div>
+            <div class="links">
+                <a href="https://github.com/Lucaasbre" target="_blank">GitHub</a>
+                <a href="https://matesyjueguitos.itch.io/" target="_blank">itch.io (Chill)</a>
+                <a href="https://sinistragames.itch.io/" target="_blank">itch.io (Horror)</a>
+                <a href="https://www.instagram.com/lukasbresi" target="_blank">Instagram</a>
+                <a href="https://www.twitch.tv/lucaasbre" target="_blank">Twitch</a>
+            </div>
+        </footer>
+    </div>
+    <script src="showcase.js"></script>
+</body>
+
+</html>
